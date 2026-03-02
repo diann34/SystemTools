@@ -193,6 +193,8 @@ public class Plugin : PluginBase
 
         // 电源选项
         RegisterActionIfEnabled<ShutdownAction, ShutdownSettingsControl>(services, config, "SystemTools.Shutdown");
+        RegisterActionIfEnabled<AdvancedShutdownAction, AdvancedShutdownSettingsControl>(services, config,
+            "SystemTools.AdvancedShutdown");
         RegisterActionIfEnabled<LockScreenAction>(services, config, "SystemTools.LockScreen");
         RegisterActionIfEnabled<CancelShutdownAction>(services, config, "SystemTools.CancelShutdown");
 
@@ -351,7 +353,7 @@ public class Plugin : PluginBase
         }
 
         // 电源选项
-        if (HasAnyActionEnabled(config, "SystemTools.Shutdown", "SystemTools.LockScreen", "SystemTools.CancelShutdown"))
+        if (HasAnyActionEnabled(config, "SystemTools.Shutdown", "SystemTools.AdvancedShutdown", "SystemTools.LockScreen", "SystemTools.CancelShutdown"))
         {
             IActionService.ActionMenuTree["SystemTools 行动"].Add(new ActionMenuTreeGroup("电源选项…", "\uEDE8"));
             BuildPowerMenu(config);
@@ -469,6 +471,8 @@ public class Plugin : PluginBase
 
         if (config.IsActionEnabled("SystemTools.Shutdown"))
             items.Add(new ActionMenuTreeItem("SystemTools.Shutdown", "计时关机", "\uE4C4"));
+        if (config.IsActionEnabled("SystemTools.AdvancedShutdown"))
+            items.Add(new ActionMenuTreeItem("SystemTools.AdvancedShutdown", "高级计时关机", "\uE4C4"));
         if (config.IsActionEnabled("SystemTools.CancelShutdown"))
             items.Add(new ActionMenuTreeItem("SystemTools.CancelShutdown", "取消关机计划", "\uE4CC"));
         if (config.IsActionEnabled("SystemTools.LockScreen"))

@@ -129,6 +129,7 @@ public partial class SystemToolsSettingsViewModel : ObservableObject
             ("SystemTools.ExternalDisplay", "仅第二屏幕", "显示设置"),
             ("SystemTools.BlackScreenHtml", "黑屏html", "显示设置"),
             ("SystemTools.Shutdown", "计时关机", "电源选项"),
+            ("SystemTools.AdvancedShutdown", "高级计时关机", "电源选项"),
             ("SystemTools.CancelShutdown", "取消关机计划", "电源选项"),
             ("SystemTools.LockScreen", "锁定屏幕", "电源选项"),
             ("SystemTools.Copy", "复制", "文件操作"),
