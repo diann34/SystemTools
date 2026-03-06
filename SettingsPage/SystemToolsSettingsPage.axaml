@@ -240,6 +240,23 @@
                         </controls:SettingsExpanderItem.Footer>
                     </controls:SettingsExpanderItem>
 
+
+                    <controls:SettingsExpanderItem Content="悬浮窗缩放">
+                        <controls:SettingsExpanderItem.Footer>
+                            <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                                <Slider Width="160"
+                                        Minimum="0.5"
+                                        Maximum="2"
+                                        TickFrequency="0.1"
+                                        IsSnapToTickEnabled="True"
+                                        Value="{Binding ViewModel.Settings.FloatingWindowScale, Mode=TwoWay}" />
+                                <TextBlock Text="{Binding ViewModel.Settings.FloatingWindowScale, StringFormat='{}{0:F1}x'}"
+                                           Width="46"
+                                           VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </controls:SettingsExpanderItem.Footer>
+                    </controls:SettingsExpanderItem>
+
                     <StackPanel Margin="12,0,12,12" Spacing="6">
                         <TextBlock Text="按钮顺序（来源：从悬浮窗触发）"
                                    Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>

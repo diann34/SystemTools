@@ -5,6 +5,7 @@ using Avalonia.Interactivity;
 using Avalonia.Layout;
 using Avalonia.Media;
 using Avalonia.Threading;
+using Avalonia.VisualTree;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,6 +20,7 @@ public class FloatingWindowService
     private readonly Dictionary<FloatingWindowTrigger, FloatingWindowEntry> _entries = new();
     private Window? _window;
     private StackPanel? _stackPanel;
+    private Border? _rootBorder;
 
     public event EventHandler? EntriesChanged;
 
@@ -35,6 +37,7 @@ public class FloatingWindowService
         {
             EnsureWindow();
             ApplyVisibility();
+            ApplyScale();
             RefreshWindowButtons();
         });
     }
@@ -72,6 +75,7 @@ public class FloatingWindowService
         Dispatcher.UIThread.Post(() =>
         {
             ApplyVisibility();
+            ApplyScale();
             RefreshWindowButtons();
         });
     }
@@ -82,6 +86,7 @@ public class FloatingWindowService
         Dispatcher.UIThread.Post(() =>
         {
             ApplyVisibility();
+            ApplyScale();
             RefreshWindowButtons();
         });
     }
@@ -94,6 +99,14 @@ public class FloatingWindowService
         }
 
         _stackPanel = new StackPanel { Margin = new Thickness(6), Spacing = 6 };
+        _rootBorder = new Border
+        {
+            Background = new SolidColorBrush(Color.Parse("#CC1F1F1F")),
+            CornerRadius = new CornerRadius(8),
+            Child = _stackPanel,
+            RenderTransformOrigin = new RelativePoint(0.5, 0.5, RelativeUnit.Relative)
+        };
+
         _window = new Window
         {
             Width = 1,
@@ -105,12 +118,7 @@ public class FloatingWindowService
             CanResize = false,
             ShowInTaskbar = false,
             SizeToContent = SizeToContent.WidthAndHeight,
-            Content = new Border
-            {
-                Background = new SolidColorBrush(Color.Parse("#CC1F1F1F")),
-                CornerRadius = new CornerRadius(8),
-                Child = _stackPanel
-            }
+            Content = _rootBorder
         };
 
         _window.Loaded += OnWindowLoaded;
@@ -154,6 +162,17 @@ public class FloatingWindowService
         {
             _window.Hide();
         }
+    }
+
+    private void ApplyScale()
+    {
+        if (_rootBorder == null)
+        {
+            return;
+        }
+
+        var scale = Math.Clamp(_configHandler.Data.FloatingWindowScale, 0.5, 2.0);
+        _rootBorder.RenderTransform = new ScaleTransform(scale, scale);
     }
 
     private void RefreshWindowButtons()
@@ -212,10 +231,26 @@ public class FloatingWindowService
             return;
         }
 
-        if (e.Source is not Button)
+        var source = e.Source as Visual;
+        if (!IsChildOfButton(source))
         {
             _window.BeginMoveDrag(e);
         }
+    }
+
+    private static bool IsChildOfButton(Visual? visual)
+    {
+        while (visual != null)
+        {
+            if (visual is Button)
+            {
+                return true;
+            }
+
+            visual = visual.GetVisualParent();
+        }
+
+        return false;
     }
 
     private void SavePosition()

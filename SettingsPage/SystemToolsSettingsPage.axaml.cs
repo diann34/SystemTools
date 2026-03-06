@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.ComponentModel;
 using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
@@ -37,6 +38,7 @@ public partial class SystemToolsSettingsPage : SettingsPageBase
         ViewModel.InitializeFeatureItems();
         ViewModel.RefreshFloatingTriggers();
         ViewModel.Settings.RestartPropertyChanged += OnRestartPropertyChanged;
+        ViewModel.Settings.PropertyChanged += OnSettingsPropertyChanged;
     }
 
     public SystemToolsSettingsViewModel ViewModel { get; }
@@ -51,6 +53,18 @@ public partial class SystemToolsSettingsPage : SettingsPageBase
     {
         RequestRestart();
     }
+
+
+    private void OnSettingsPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName is nameof(MainConfigData.ShowFloatingWindow)
+            or nameof(MainConfigData.FloatingWindowHorizontal)
+            or nameof(MainConfigData.FloatingWindowScale))
+        {
+            IAppHost.GetService<FloatingWindowService>().UpdateWindowState();
+        }
+    }
+
 
     private void ButtonRestart_OnClick(object sender, RoutedEventArgs e)
     {
