@@ -7,8 +7,24 @@
              Margin="0,0,10,0">
 
     <UserControl.Resources>
-        <SolidColorBrush x:Key="MyBorderBrush" Color="#FFB900"/>
-        <SolidColorBrush x:Key="MyBackgroundBrush" Color="#b28200"/>
+        <ResourceDictionary>
+            <ResourceDictionary.ThemeDictionaries>
+                <ResourceDictionary x:Key="Light">
+                    <SolidColorBrush x:Key="MyBorderBrush" Color="#FFB900"/>
+                    <SolidColorBrush x:Key="MyBackgroundBrush" Color="#FFD973"/>
+                </ResourceDictionary>
+
+                <ResourceDictionary x:Key="Dark">
+                    <SolidColorBrush x:Key="MyBorderBrush" Color="#eaaa00"/>
+                    <SolidColorBrush x:Key="MyBackgroundBrush" Color="#715200"/>
+                </ResourceDictionary>
+
+                <ResourceDictionary x:Key="Default">
+                    <SolidColorBrush x:Key="MyBorderBrush" Color="#FFB900"/>
+                    <SolidColorBrush x:Key="MyBackgroundBrush" Color="#B28200"/>
+                </ResourceDictionary>
+            </ResourceDictionary.ThemeDictionaries>
+        </ResourceDictionary>
     </UserControl.Resources>
 
     <Border BorderBrush="{DynamicResource MyBorderBrush}" 
