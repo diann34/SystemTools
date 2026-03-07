@@ -12,6 +12,7 @@ using SystemTools.ConfigHandlers;
 using SystemTools.Shared;
 using SystemTools.Services;
 using ClassIsland.Core.Abstractions;
+using ClassIsland.Shared;
 
 namespace SystemTools;
 
