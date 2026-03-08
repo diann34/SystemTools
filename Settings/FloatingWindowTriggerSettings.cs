@@ -21,18 +21,11 @@ public class FloatingWindowTriggerSettings : TriggerSettingsControlBase<Floating
 
     private readonly TextBox _iconTextBox;
     private readonly TextBox _nameTextBox;
-    private readonly Grid _rootGrid;
-    private readonly Border _iconDrawer;
     private readonly ObservableCollection<IconRow> _iconRows = new();
+    private Window? _iconPickerWindow;
 
     public FloatingWindowTriggerSettings()
     {
-        _rootGrid = new Grid
-        {
-            ColumnDefinitions = new ColumnDefinitions("*,420"),
-            ColumnSpacing = 12
-        };
-
         var panel = new StackPanel { Spacing = 10, Margin = new Thickness(10) };
 
         panel.Children.Add(new TextBlock
@@ -56,7 +49,7 @@ public class FloatingWindowTriggerSettings : TriggerSettingsControlBase<Floating
             Content = "选择图标",
             VerticalAlignment = VerticalAlignment.Center
         };
-        pickIconButton.Click += (_, _) => OpenIconDrawer();
+        pickIconButton.Click += (_, _) => OpenIconPickerWindow();
         Grid.SetColumn(pickIconButton, 1);
         iconRow.Children.Add(pickIconButton);
         panel.Children.Add(iconRow);
@@ -78,16 +71,10 @@ public class FloatingWindowTriggerSettings : TriggerSettingsControlBase<Floating
             Foreground = Brushes.Gray
         });
 
-        _rootGrid.Children.Add(panel);
-
-        _iconDrawer = BuildIconDrawer();
-        Grid.SetColumn(_iconDrawer, 1);
-        _rootGrid.Children.Add(_iconDrawer);
-
-        Content = _rootGrid;
+        Content = panel;
     }
 
-    private Border BuildIconDrawer()
+    private Control BuildIconPickerContent()
     {
         var title = new TextBlock
         {
@@ -102,7 +89,7 @@ public class FloatingWindowTriggerSettings : TriggerSettingsControlBase<Floating
             Content = "关闭",
             HorizontalAlignment = HorizontalAlignment.Right
         };
-        closeButton.Click += (_, _) => CloseIconDrawer();
+        closeButton.Click += (_, _) => _iconPickerWindow?.Close();
 
         var header = new Grid
         {
@@ -123,7 +110,7 @@ public class FloatingWindowTriggerSettings : TriggerSettingsControlBase<Floating
         listBox.ItemsPanel = new FuncTemplate<Panel>(() => new VirtualizingStackPanel());
         listBox.ItemTemplate = new FuncDataTemplate<IconRow?>((row, _) => BuildRowPanel(row));
 
-        var drawerContent = new StackPanel
+        return new StackPanel
         {
             Children =
             {
@@ -137,17 +124,6 @@ public class FloatingWindowTriggerSettings : TriggerSettingsControlBase<Floating
                     Child = listBox
                 }
             }
-        };
-
-        return new Border
-        {
-            IsVisible = false,
-            Background = new SolidColorBrush(Color.Parse("#111111")),
-            BorderBrush = new SolidColorBrush(Color.Parse("#33444444")),
-            BorderThickness = new Thickness(1),
-            CornerRadius = new CornerRadius(8),
-            Padding = new Thickness(10),
-            Child = drawerContent
         };
     }
 
@@ -172,6 +148,7 @@ public class FloatingWindowTriggerSettings : TriggerSettingsControlBase<Floating
             {
                 continue;
             }
+
             var iconButton = new Button
             {
                 Width = 34,
@@ -195,26 +172,51 @@ public class FloatingWindowTriggerSettings : TriggerSettingsControlBase<Floating
         return wrapPanel;
     }
 
-    private void OpenIconDrawer()
+    private void OpenIconPickerWindow()
     {
         if (_iconRows.Count == 0)
         {
             LoadIconRows();
         }
 
-        _iconDrawer.IsVisible = true;
-    }
+        if (_iconPickerWindow?.IsVisible == true)
+        {
+            _iconPickerWindow.Activate();
+            return;
+        }
 
-    private void CloseIconDrawer()
-    {
-        _iconDrawer.IsVisible = false;
+        _iconPickerWindow = new Window
+        {
+            Width = 480,
+            Height = 620,
+            MinWidth = 420,
+            MinHeight = 500,
+            ShowInTaskbar = false,
+            Title = "选择悬浮窗图标",
+            Content = new Border
+            {
+                Padding = new Thickness(10),
+                Child = BuildIconPickerContent()
+            }
+        };
+
+        _iconPickerWindow.Closed += (_, _) => _iconPickerWindow = null;
+
+        if (TopLevel.GetTopLevel(this) is Window owner)
+        {
+            _iconPickerWindow.WindowStartupLocation = WindowStartupLocation.CenterOwner;
+            _iconPickerWindow.Show(owner);
+            return;
+        }
+
+        _iconPickerWindow.Show();
     }
 
     private void SelectIcon(string token)
     {
         Settings.Icon = token;
         _iconTextBox.Text = token;
-        CloseIconDrawer();
+        _iconPickerWindow?.Close();
     }
 
     private void LoadIconRows()
