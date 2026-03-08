@@ -112,8 +112,8 @@ public class FloatingWindowTriggerSettings : TriggerSettingsControlBase<Floating
         listBox.ItemTemplate = new FuncDataTemplate<IconRow?>((row, _) => BuildIconRow(row));
 
         listBox.Height = 520;
-        listBox.VerticalScrollBarVisibility = ScrollBarVisibility.Auto;
-        listBox.HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled;
+        ScrollViewer.SetVerticalScrollBarVisibility(listBox, ScrollBarVisibility.Auto);
+        ScrollViewer.SetHorizontalScrollBarVisibility(listBox, ScrollBarVisibility.Disabled);
 
         return new Border
         {
