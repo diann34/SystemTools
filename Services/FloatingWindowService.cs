@@ -125,7 +125,7 @@ public class FloatingWindowService
 
     private void OnApplicationPropertyChanged(object? sender, AvaloniaPropertyChangedEventArgs e)
     {
-        if (e.Property == StyledElement.ActualThemeVariantProperty)
+        if (string.Equals(e.Property?.Name, "ActualThemeVariant", StringComparison.Ordinal))
         {
             Dispatcher.UIThread.Post(RefreshWindowButtons);
         }
