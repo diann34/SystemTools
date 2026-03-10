@@ -19,101 +19,100 @@
 
             <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
                 <ci:FluentIcon FontSize="56"
-                               Glyph="&#xEA37;"
+                               Glyph="&#xEA36;"
                                Foreground="{DynamicResource TextFillColorSecondaryBrush}"
                                VerticalAlignment="Center" />
-                <Label VerticalAlignment="Center" FontSize="28">悬浮窗 · 编辑</Label>
+                <Label VerticalAlignment="Center" FontSize="28">设置 · 悬浮窗</Label>
             </StackPanel>
 
             <controls:SettingsExpander IconSource="{ci:FluentIconSource &#xEA37;}"
-                                       Header="悬浮窗外观"
-                                       Description="调整悬浮窗显示开关、缩放、字体与透明度。">
-                <controls:SettingsExpanderItem Content="显示悬浮窗">
-                    <controls:SettingsExpanderItem.Footer>
-                        <StackPanel Orientation="Horizontal" Spacing="8">
-                            <controls1:ExperimentalBadge IsVisible="{Binding Settings.IsExperimentalModeActivated}" />
-                            <ToggleSwitch IsChecked="{Binding ViewModel.Settings.ShowFloatingWindow, Mode=TwoWay}"
-                                          IsEnabled="{Binding ViewModel.HasFloatingTriggerEntries}"
-                                          Click="OnFloatingWindowConfigChanged" />
-                        </StackPanel>
-                    </controls:SettingsExpanderItem.Footer>
-                </controls:SettingsExpanderItem>
-
-                <controls:SettingsExpanderItem Content="悬浮窗缩放">
-                    <controls:SettingsExpanderItem.Footer>
-                        <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
-                            <Slider Width="160"
-                                    Minimum="0.5"
-                                    Maximum="2"
-                                    TickFrequency="0.1"
-                                    IsSnapToTickEnabled="True"
-                                    Value="{Binding ViewModel.Settings.FloatingWindowScale, Mode=TwoWay}" />
-                            <TextBlock Text="{Binding ViewModel.Settings.FloatingWindowScale, StringFormat='{}{0:F1}x'}"
-                                       Width="46"
-                                       VerticalAlignment="Center" />
-                        </StackPanel>
-                    </controls:SettingsExpanderItem.Footer>
-                </controls:SettingsExpanderItem>
-
-                <controls:SettingsExpanderItem Content="图标大小">
-                    <controls:SettingsExpanderItem.Footer>
-                        <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
-                            <Slider Width="160"
-                                    Minimum="8"
-                                    Maximum="30"
-                                    TickFrequency="1"
-                                    IsSnapToTickEnabled="True"
-                                    Value="{Binding ViewModel.Settings.FloatingWindowIconSize, Mode=TwoWay}" />
-                            <TextBlock Text="{Binding ViewModel.Settings.FloatingWindowIconSize, StringFormat='{}{0}px'}"
-                                       Width="46"
-                                       VerticalAlignment="Center" />
-                        </StackPanel>
-                    </controls:SettingsExpanderItem.Footer>
-                </controls:SettingsExpanderItem>
-
-                <controls:SettingsExpanderItem Content="文字大小">
-                    <controls:SettingsExpanderItem.Footer>
-                        <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
-                            <Slider Width="160"
-                                    Minimum="8"
-                                    Maximum="30"
-                                    TickFrequency="1"
-                                    IsSnapToTickEnabled="True"
-                                    Value="{Binding ViewModel.Settings.FloatingWindowTextSize, Mode=TwoWay}" />
-                            <TextBlock Text="{Binding ViewModel.Settings.FloatingWindowTextSize, StringFormat='{}{0}px'}"
-                                       Width="46"
-                                       VerticalAlignment="Center" />
-                        </StackPanel>
-                    </controls:SettingsExpanderItem.Footer>
-                </controls:SettingsExpanderItem>
-
-                <controls:SettingsExpanderItem Content="透明度">
-                    <controls:SettingsExpanderItem.Footer>
-                        <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
-                            <Slider Width="160"
-                                    Minimum="10"
-                                    Maximum="100"
-                                    TickFrequency="1"
-                                    IsSnapToTickEnabled="True"
-                                    Value="{Binding ViewModel.Settings.FloatingWindowOpacity, Mode=TwoWay}" />
-                            <TextBlock Text="{Binding ViewModel.Settings.FloatingWindowOpacity, StringFormat='{}{0}%'}"
-                                       Width="46"
-                                       VerticalAlignment="Center" />
-                        </StackPanel>
-                    </controls:SettingsExpanderItem.Footer>
-                </controls:SettingsExpanderItem>
+                                       Header="显示悬浮窗">
+                <controls:SettingsExpander.Footer>
+                    <ToggleSwitch IsChecked="{Binding ViewModel.Settings.ShowFloatingWindow, Mode=TwoWay}"
+                                  IsEnabled="{Binding ViewModel.HasFloatingTriggerEntries}"
+                                  Click="OnFloatingWindowConfigChanged" />
+                </controls:SettingsExpander.Footer>
             </controls:SettingsExpander>
 
-            <controls:SettingsExpander IconSource="{ci:FluentIconSource &#xE8B1;}"
+            <controls:SettingsExpander IconSource="{ci:FluentIconSource &#xE10B;}"
+                                       Header="悬浮窗缩放"
+                                       Description="调整悬浮窗缩放大小">
+                <controls:SettingsExpander.Footer>
+                    <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                        <Slider Width="160"
+                                Minimum="0.5"
+                                Maximum="2"
+                                TickFrequency="0.1"
+                                IsSnapToTickEnabled="True"
+                                Value="{Binding ViewModel.Settings.FloatingWindowScale, Mode=TwoWay}" />
+                        <TextBlock Text="{Binding ViewModel.Settings.FloatingWindowScale, StringFormat='{}{0:F1}x'}"
+                                   Width="46"
+                                   VerticalAlignment="Center" />
+                    </StackPanel>
+                </controls:SettingsExpander.Footer>
+            </controls:SettingsExpander>
+
+            <controls:SettingsExpander IconSource="{ci:FluentIconSource &#xF17E;}"
+                                       Header="图标大小"
+                                       Description="调整悬浮窗内图标缩放">
+                <controls:SettingsExpander.Footer>
+                    <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                        <Slider Width="160"
+                                Minimum="15"
+                                Maximum="50"
+                                TickFrequency="1"
+                                IsSnapToTickEnabled="True"
+                                Value="{Binding ViewModel.Settings.FloatingWindowIconSize, Mode=TwoWay}" />
+                        <TextBlock Text="{Binding ViewModel.Settings.FloatingWindowIconSize, StringFormat='{}{0}px'}"
+                                   Width="46"
+                                   VerticalAlignment="Center" />
+                    </StackPanel>
+                </controls:SettingsExpander.Footer>
+            </controls:SettingsExpander>
+
+            <controls:SettingsExpander IconSource="{ci:FluentIconSource &#xF17E;}"
+                                       Header="文字大小"
+                                       Description="调整悬浮窗内文字缩放">
+                <controls:SettingsExpander.Footer>
+                    <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                        <Slider Width="160"
+                                Minimum="8"
+                                Maximum="25"
+                                TickFrequency="1"
+                                IsSnapToTickEnabled="True"
+                                Value="{Binding ViewModel.Settings.FloatingWindowTextSize, Mode=TwoWay}" />
+                        <TextBlock Text="{Binding ViewModel.Settings.FloatingWindowTextSize, StringFormat='{}{0}px'}"
+                                   Width="46"
+                                   VerticalAlignment="Center" />
+                    </StackPanel>
+                </controls:SettingsExpander.Footer>
+            </controls:SettingsExpander>
+
+            <controls:SettingsExpander IconSource="{ci:FluentIconSource &#xF045;}"
+                                       Header="透明度"
+                                       Description="调整悬浮窗透明度">
+                <controls:SettingsExpander.Footer>
+                    <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                        <Slider Width="160"
+                                Minimum="10"
+                                Maximum="100"
+                                TickFrequency="1"
+                                IsSnapToTickEnabled="True"
+                                Value="{Binding ViewModel.Settings.FloatingWindowOpacity, Mode=TwoWay}" />
+                        <TextBlock Text="{Binding ViewModel.Settings.FloatingWindowOpacity, StringFormat='{}{0}%'}"
+                                   Width="46"
+                                   VerticalAlignment="Center" />
+                    </StackPanel>
+                </controls:SettingsExpander.Footer>
+            </controls:SettingsExpander>
+
+            <controls:SettingsExpander IconSource="{ci:FluentIconSource &#xEA37;}"
                                        Header="悬浮窗按钮布局"
-                                       Description="通过拖拽调整按钮顺序与行布局。">
+                                       Description="您可在下方通过拖拽调整行内按钮顺序，或添加行以实现纵列排布等功能"
+                                       IsExpanded="True">
                 <StackPanel Margin="12,8,12,12" Spacing="8">
                     <Grid>
-                        <TextBlock Text="您可在下方通过拖拽调整行内按钮顺序或添加行以实现纵列排布等功能。"
-                                   HorizontalAlignment="Left"
-                                   TextWrapping="Wrap"
-                                   Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
-                        <Button Content="添加行" Width="92" HorizontalAlignment="Right"
+                        <Button Content="添加行" Width="92" HorizontalAlignment="Left"
                                 Click="OnAddFloatingTriggerRowClick" />
                     </Grid>
                     <ItemsControl ItemsSource="{Binding ViewModel.FloatingTriggerRows}">
@@ -153,17 +152,18 @@
                                                 </ItemsControl.ItemsPanel>
                                                 <ItemsControl.ItemTemplate>
                                                     <DataTemplate>
-                                                        <Border Background="{DynamicResource SubtleFillColorSecondaryBrush}"
-                                                                CornerRadius="6"
-                                                                Padding="8,4"
-                                                                Margin="0,0,2,0"
-                                                                Tag="{Binding ButtonId}"
-                                                                DragDrop.AllowDrop="True"
-                                                                DragDrop.DragOver="OnFloatingTriggerItemDragOver"
-                                                                DragDrop.Drop="OnFloatingTriggerItemDrop"
-                                                                PointerPressed="OnFloatingTriggerItemPointerPressed"
-                                                                PointerMoved="OnFloatingTriggerItemPointerMoved"
-                                                                PointerReleased="OnFloatingTriggerItemPointerReleased">
+                                                        <Border
+                                                            Background="{DynamicResource SubtleFillColorSecondaryBrush}"
+                                                            CornerRadius="6"
+                                                            Padding="8,4"
+                                                            Margin="0,0,2,0"
+                                                            Tag="{Binding ButtonId}"
+                                                            DragDrop.AllowDrop="True"
+                                                            DragDrop.DragOver="OnFloatingTriggerItemDragOver"
+                                                            DragDrop.Drop="OnFloatingTriggerItemDrop"
+                                                            PointerPressed="OnFloatingTriggerItemPointerPressed"
+                                                            PointerMoved="OnFloatingTriggerItemPointerMoved"
+                                                            PointerReleased="OnFloatingTriggerItemPointerReleased">
                                                             <StackPanel Orientation="Horizontal" Spacing="6">
                                                                 <TextBlock Text="{Binding Icon}" />
                                                                 <TextBlock Text="{Binding ButtonName}" />

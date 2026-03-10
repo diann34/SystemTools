@@ -11,6 +11,7 @@ using ClassIsland.Core;
 using ClassIsland.Core.Abstractions;
 using ClassIsland.Core.Abstractions.Controls;
 using ClassIsland.Core.Attributes;
+using ClassIsland.Shared;
 using SystemTools.ConfigHandlers;
 using SystemTools.Services;
 using SystemTools.Shared;

@@ -157,7 +157,6 @@
                     </controls:SettingsExpander.Footer>
                 </controls:SettingsExpander>
 
-                
 
                 <!-- 实验性功能开关 -->
                 <controls:SettingsExpander IconSource="{ci:FluentIconSource &#xE508;}"
@@ -174,14 +173,12 @@
 
 
                 <controls:SettingsExpander IconSource="{ci:FluentIconSource &#xEA37;}"
-                                           Header="悬浮窗功能"
-                                           Description="关闭后将禁用悬浮窗相关触发器与设置页，需重启生效。">
-                    <controls:SettingsExpanderItem Content="启用悬浮窗功能">
-                        <controls:SettingsExpanderItem.Footer>
-                            <ToggleSwitch IsChecked="{Binding ViewModel.Settings.EnableFloatingWindowFeature, Mode=TwoWay}"
-                                          Click="OnFloatingFeatureToggleClick" />
-                        </controls:SettingsExpanderItem.Footer>
-                    </controls:SettingsExpanderItem>
+                                           Header="启用悬浮窗功能"
+                                           Description="关闭后将禁用悬浮窗相关全部功能">
+                    <controls:SettingsExpander.Footer>
+                        <ToggleSwitch IsChecked="{Binding ViewModel.Settings.EnableFloatingWindowFeature, Mode=TwoWay}"
+                                      Click="OnFloatingFeatureToggleClick" />
+                    </controls:SettingsExpander.Footer>
                 </controls:SettingsExpander>
 
                 <!-- 启用更多功能 -->
@@ -209,12 +206,13 @@
                         <controls:SettingsExpanderItem.Footer>
                             <StackPanel Orientation="Horizontal">
                                 <controls1:ExperimentalBadge IsVisible="{Binding Settings.IsExperimentalModeActivated}" />
-                            <ToggleSwitch IsChecked="{Binding ViewModel.Settings.EnableFaceRecognition, Mode=TwoWay}"
-                                          Click="OnFaceRecognitionToggleClick" />
+                                <ToggleSwitch
+                                    IsChecked="{Binding ViewModel.Settings.EnableFaceRecognition, Mode=TwoWay}"
+                                    Click="OnFaceRecognitionToggleClick" />
                             </StackPanel>
                         </controls:SettingsExpanderItem.Footer>
                     </controls:SettingsExpanderItem>
-                    
+
                     <controls:SettingsExpanderItem Content="下载人脸识别验证模型及运行时">
                         <controls:SettingsExpanderItem.Footer>
                             <Button Content="点击下载（138 MB）"
