@@ -51,7 +51,7 @@ public partial class FloatingTriggerRow : ObservableObject
     [ObservableProperty] private ObservableCollection<FloatingTriggerItem> _buttons = new();
 }
 
-public partial class SystemToolsSettingsViewModel : ObservableObject
+public partial class SystemToolsSettingsViewModel : ObservableObject, IDisposable
 {
     [ObservableProperty] private MainConfigData _settings;
 
@@ -71,6 +71,7 @@ public partial class SystemToolsSettingsViewModel : ObservableObject
 
     private readonly MainConfigHandler _configHandler;
     private readonly FloatingWindowService _floatingWindowService;
+    private readonly EventHandler _entriesChangedHandler;
 
     [ObservableProperty] private ObservableCollection<FloatingTriggerRow> _floatingTriggerRows = new();
     [ObservableProperty] private bool _hasFloatingTriggerEntries;
@@ -90,7 +91,8 @@ public partial class SystemToolsSettingsViewModel : ObservableObject
         _configHandler = configHandler;
         _floatingWindowService = floatingWindowService;
         _settings = configHandler.Data;
-        _floatingWindowService.EntriesChanged += (_, _) => RefreshFloatingTriggers();
+        _entriesChangedHandler = (_, _) => Dispatcher.UIThread.Post(RefreshFloatingTriggers);
+        _floatingWindowService.EntriesChanged += _entriesChangedHandler;
     }
 
     public void InitializeFeatureItems()
@@ -282,7 +284,7 @@ public partial class SystemToolsSettingsViewModel : ObservableObject
             FloatingTriggerRows.Add(vmRow);
         }
 
-        PersistFloatingTriggerRows(updateWindow: false);
+        PersistFloatingTriggerRows(updateWindow: false, forceSave: false);
     }
 
     public void AddFloatingTriggerRow()
@@ -352,21 +354,65 @@ public partial class SystemToolsSettingsViewModel : ObservableObject
         return true;
     }
 
-    public void PersistFloatingTriggerRows(bool updateWindow = true)
+    public void PersistFloatingTriggerRows(bool updateWindow = true, bool forceSave = true)
     {
-        Settings.FloatingWindowButtonRows = FloatingTriggerRows
+        var newRows = FloatingTriggerRows
             .Select(row => row.Buttons.Select(x => x.ButtonId).ToList())
             .ToList();
-        Settings.FloatingWindowButtonOrder = FloatingTriggerRows
-            .SelectMany(row => row.Buttons)
-            .Select(x => x.ButtonId)
+        var newOrder = newRows
+            .SelectMany(row => row)
             .ToList();
-        _configHandler.Save();
+
+        var rowsChanged = !AreRowsEqual(Settings.FloatingWindowButtonRows, newRows);
+        var orderChanged = !(Settings.FloatingWindowButtonOrder ?? []).SequenceEqual(newOrder);
+
+        if (rowsChanged)
+        {
+            Settings.FloatingWindowButtonRows = newRows;
+        }
+
+        if (orderChanged)
+        {
+            Settings.FloatingWindowButtonOrder = newOrder;
+        }
+
+        if (forceSave && (rowsChanged || orderChanged))
+        {
+            _configHandler.Save();
+        }
 
         if (updateWindow)
         {
             _floatingWindowService.UpdateWindowState();
         }
+    }
+
+    public void Dispose()
+    {
+        _floatingWindowService.EntriesChanged -= _entriesChangedHandler;
+    }
+
+    private static bool AreRowsEqual(IReadOnlyList<List<string>>? left, IReadOnlyList<List<string>> right)
+    {
+        if (left == null)
+        {
+            return right.Count == 0;
+        }
+
+        if (left.Count != right.Count)
+        {
+            return false;
+        }
+
+        for (var i = 0; i < left.Count; i++)
+        {
+            if (!left[i].SequenceEqual(right[i]))
+            {
+                return false;
+            }
+        }
+
+        return true;
     }
 
         public bool CheckFfmpegExists()

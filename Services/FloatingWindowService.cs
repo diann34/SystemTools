@@ -76,6 +76,7 @@ public class FloatingWindowService
             trigger.TriggerFromFloatingWindow,
             trigger.CancelIsOnState);
 
+        PruneButtonWidthCache();
         NotifyEntriesChanged();
     }
 
@@ -83,6 +84,7 @@ public class FloatingWindowService
     {
         if (_entries.Remove(trigger))
         {
+            PruneButtonWidthCache();
             NotifyEntriesChanged();
         }
     }
@@ -397,15 +399,22 @@ public class FloatingWindowService
             rows.Add([]);
         }
 
-        _configHandler.Data.FloatingWindowButtonRows = rows
-            .Select(r => r.Select(x => x.ButtonId).ToList())
-            .ToList();
-        _configHandler.Data.FloatingWindowButtonOrder = rows
-            .SelectMany(r => r)
-            .Select(x => x.ButtonId)
-            .ToList();
-
         return rows;
+    }
+
+    private void PruneButtonWidthCache()
+    {
+        if (_buttonWidthCache.Count == 0)
+        {
+            return;
+        }
+
+        var validIds = _entries.Values.Select(x => x.ButtonId).ToHashSet();
+        var staleIds = _buttonWidthCache.Keys.Where(id => !validIds.Contains(id)).ToList();
+        foreach (var id in staleIds)
+        {
+            _buttonWidthCache.Remove(id);
+        }
     }
 
     private void OnPointerPressed(object? sender, PointerPressedEventArgs e)
@@ -457,7 +466,7 @@ public class FloatingWindowService
 
         var clamped = ClampToVisibleScreen(_window.Position);
         _window.Position = clamped;
-        SavePosition(clamped, forceSave: true);
+        SavePosition(clamped);
     }
 
     private PixelRect GetWindowRect(PixelPoint position)

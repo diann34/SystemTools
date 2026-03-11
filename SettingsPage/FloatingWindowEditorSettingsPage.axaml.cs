@@ -41,6 +41,21 @@ public partial class FloatingWindowEditorSettingsPage : SettingsPageBase
     }
 
     public SystemToolsSettingsViewModel ViewModel { get; }
+    private bool _isDisposed;
+
+    protected override void OnDetachedFromVisualTree(VisualTreeAttachmentEventArgs e)
+    {
+        base.OnDetachedFromVisualTree(e);
+
+        if (_isDisposed)
+        {
+            return;
+        }
+
+        ViewModel.Settings.PropertyChanged -= OnSettingsPropertyChanged;
+        ViewModel.Dispose();
+        _isDisposed = true;
+    }
 
     private void OnSettingsPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
