@@ -69,6 +69,7 @@ public class FloatingWindowService
             trigger.GetButtonId(),
             trigger.GetIcon(),
             trigger.GetButtonName(),
+            trigger.ShouldUseRevertStyle(),
             trigger.TriggerFromFloatingWindow);
 
         NotifyEntriesChanged();
@@ -293,6 +294,12 @@ public class FloatingWindowService
                     HorizontalContentAlignment = HorizontalAlignment.Center,
                     VerticalContentAlignment = VerticalAlignment.Center
                 };
+
+                if (entry.IsRevertStyleActive)
+                {
+                    button.Background = TryGetButtonPointerOverBrush() ??
+                                        new SolidColorBrush(Color.FromArgb(80, 255, 255, 255));
+                }
 
                 button.Click += (_, _) => entry.TriggerAction();
                 rowPanel.Children.Add(button);
@@ -535,6 +542,28 @@ public class FloatingWindowService
 
         return v;
     }
+
+    private static IBrush? TryGetButtonPointerOverBrush()
+    {
+        if (Application.Current == null)
+        {
+            return null;
+        }
+
+        if (Application.Current.TryGetResource("SubtleFillColorSecondaryBrush", null, out var subtle) &&
+            subtle is IBrush subtleBrush)
+        {
+            return subtleBrush;
+        }
+
+        if (Application.Current.TryGetResource("ControlFillColorSecondaryBrush", null, out var control) &&
+            control is IBrush controlBrush)
+        {
+            return controlBrush;
+        }
+
+        return null;
+    }
 }
 
-public record FloatingWindowEntry(string ButtonId, string Icon, string Name, Action TriggerAction);
+public record FloatingWindowEntry(string ButtonId, string Icon, string Name, bool IsRevertStyleActive, Action TriggerAction);

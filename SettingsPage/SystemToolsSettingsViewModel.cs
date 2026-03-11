@@ -138,7 +138,7 @@ public partial class SystemToolsSettingsViewModel : ObservableObject
             });
         }
 
-        var actions = new[]
+        var actions = new List<(string Id, string Name, string? Group)>
         {
             ("SystemTools.SimulateKeyboard", "模拟键盘", "模拟操作"),
             ("SystemTools.SimulateMouse", "模拟鼠标", "模拟操作"),
@@ -173,6 +173,11 @@ public partial class SystemToolsSettingsViewModel : ObservableObject
             ("SystemTools.TriggerCustomTrigger", "触发指定触发器", null),
             ("SystemTools.RestartAsAdmin", "重启应用为管理员身份", null),
         };
+
+        if (Settings.EnableFloatingWindowFeature)
+        {
+            actions.Add(("SystemTools.ShowFloatingWindow", "显示悬浮窗", "悬浮窗设置"));
+        }
 
         foreach (var (id, name, group) in actions)
         {

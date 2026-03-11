@@ -231,6 +231,13 @@ public class Plugin : PluginBase
             "SystemTools.DisableDevice");
         RegisterActionIfEnabled<ShowToastAction, ShowToastSettingsControl>(services, config, "SystemTools.ShowToast");
 
+        // 悬浮窗设置
+        if (config.EnableFloatingWindowFeature)
+        {
+            RegisterActionIfEnabled<ShowFloatingWindowAction, ShowFloatingWindowSettingsControl>(services, config,
+                "SystemTools.ShowFloatingWindow");
+        }
+
         // 其他工具
         RegisterActionIfEnabled<FullscreenClockAction, FullscreenClockSettingsControl>(services, config,
             "SystemTools.FullscreenClock");
@@ -399,6 +406,13 @@ public class Plugin : PluginBase
             BuildUtilityMenu(config);
         }
 
+        // 悬浮窗设置
+        if (config.EnableFloatingWindowFeature && config.IsActionEnabled("SystemTools.ShowFloatingWindow"))
+        {
+            IActionService.ActionMenuTree["SystemTools 行动"].Add(new ActionMenuTreeGroup("悬浮窗设置…", "\uEDDB"));
+            BuildFloatingWindowMenu(config);
+        }
+
         // 其他工具
         if (config.IsActionEnabled("SystemTools.FullscreenClock"))
         {
@@ -554,6 +568,20 @@ public class Plugin : PluginBase
         if (items.Count > 0)
         {
             IActionService.ActionMenuTree["SystemTools 行动"]["实用工具…"].AddRange(items);
+        }
+    }
+
+
+    private void BuildFloatingWindowMenu(MainConfigData config)
+    {
+        var items = new List<ActionMenuTreeItem>();
+
+        if (config.EnableFloatingWindowFeature && config.IsActionEnabled("SystemTools.ShowFloatingWindow"))
+            items.Add(new ActionMenuTreeItem("SystemTools.ShowFloatingWindow", "显示悬浮窗", "\uEDDB"));
+
+        if (items.Count > 0)
+        {
+            IActionService.ActionMenuTree["SystemTools 行动"]["悬浮窗设置…"].AddRange(items);
         }
     }
 

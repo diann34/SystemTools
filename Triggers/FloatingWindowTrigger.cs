@@ -1,5 +1,6 @@
 using ClassIsland.Core.Abstractions.Automation;
 using ClassIsland.Core.Attributes;
+using ClassIsland.Shared.Enums;
 using Microsoft.Extensions.Logging;
 using System;
 using System.ComponentModel;
@@ -22,6 +23,10 @@ public class FloatingWindowTrigger : TriggerBase<FloatingWindowTriggerConfig>
     public override void Loaded()
     {
         Settings.PropertyChanged += OnSettingsChanged;
+        if (AssociatedWorkflow?.ActionSet != null)
+        {
+            AssociatedWorkflow.ActionSet.PropertyChanged += OnActionSetPropertyChanged;
+        }
         EnsureButtonId();
         _floatingWindowService.RegisterTrigger(this);
     }
@@ -29,12 +34,28 @@ public class FloatingWindowTrigger : TriggerBase<FloatingWindowTriggerConfig>
     public override void UnLoaded()
     {
         Settings.PropertyChanged -= OnSettingsChanged;
+        if (AssociatedWorkflow?.ActionSet != null)
+        {
+            AssociatedWorkflow.ActionSet.PropertyChanged -= OnActionSetPropertyChanged;
+        }
         _floatingWindowService.UnregisterTrigger(this);
     }
 
     public void TriggerFromFloatingWindow()
     {
-        _logger.LogInformation("从悬浮窗触发触发器: {ButtonId}", Settings.ButtonId);
+        var actionSet = AssociatedWorkflow?.ActionSet;
+        var useRevertMode = actionSet?.IsRevertEnabled == true;
+        var isOn = actionSet?.Status == ActionSetStatus.IsOn;
+
+        _logger.LogInformation("从悬浮窗触发触发器: {ButtonId}, 启用恢复: {UseRevertMode}, 当前状态: {Status}",
+            Settings.ButtonId, useRevertMode, actionSet?.Status);
+
+        if (useRevertMode && isOn)
+        {
+            TriggerRevert();
+            return;
+        }
+
         Trigger();
     }
 
@@ -51,7 +72,12 @@ public class FloatingWindowTrigger : TriggerBase<FloatingWindowTriggerConfig>
 
     public string GetButtonName()
     {
-        return Settings.ButtonName;
+        return ShouldShowRevertButton() ? "恢复" : Settings.ButtonName;
+    }
+
+    public bool ShouldUseRevertStyle()
+    {
+        return ShouldShowRevertButton();
     }
 
     private void EnsureButtonId()
@@ -70,5 +96,20 @@ public class FloatingWindowTrigger : TriggerBase<FloatingWindowTriggerConfig>
         {
             _floatingWindowService.RegisterTrigger(this);
         }
+    }
+
+    private void OnActionSetPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == "Status" ||
+            e.PropertyName == "IsRevertEnabled")
+        {
+            _floatingWindowService.RegisterTrigger(this);
+        }
+    }
+
+    private bool ShouldShowRevertButton()
+    {
+        var actionSet = AssociatedWorkflow?.ActionSet;
+        return actionSet?.IsRevertEnabled == true && actionSet.Status == ActionSetStatus.IsOn;
     }
 }
