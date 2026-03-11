@@ -4,6 +4,7 @@ using ClassIsland.Shared.Enums;
 using Microsoft.Extensions.Logging;
 using System;
 using System.ComponentModel;
+using System.Linq;
 using SystemTools.Services;
 
 namespace SystemTools.Triggers;
@@ -75,9 +76,50 @@ public class FloatingWindowTrigger : TriggerBase<FloatingWindowTriggerConfig>
         return ShouldShowRevertButton() ? "恢复" : Settings.ButtonName;
     }
 
+    public string GetLayoutButtonName()
+    {
+        return IsRevertEnabled() ? $"{Settings.ButtonName}(启用恢复)" : Settings.ButtonName;
+    }
+
     public bool ShouldUseRevertStyle()
     {
         return ShouldShowRevertButton();
+    }
+
+    public bool IsRevertEnabled()
+    {
+        return AssociatedWorkflow?.ActionSet?.IsRevertEnabled == true;
+    }
+
+    public void CancelIsOnState()
+    {
+        var actionSet = AssociatedWorkflow?.ActionSet;
+        if (actionSet == null || actionSet.Status != ActionSetStatus.IsOn)
+        {
+            return;
+        }
+
+        var statusProperty = actionSet.GetType().GetProperty("Status");
+        if (statusProperty?.CanWrite != true || !statusProperty.PropertyType.IsEnum)
+        {
+            return;
+        }
+
+        var enumValues = Enum.GetValues(statusProperty.PropertyType).Cast<object>().ToList();
+        var targetStatus = enumValues.FirstOrDefault(v =>
+                               string.Equals(v.ToString(), "IsOff", StringComparison.OrdinalIgnoreCase) ||
+                               string.Equals(v.ToString(), "Off", StringComparison.OrdinalIgnoreCase))
+                           ?? enumValues.FirstOrDefault(v => !Equals(v, actionSet.Status));
+
+        if (targetStatus == null)
+        {
+            return;
+        }
+
+        statusProperty.SetValue(actionSet, targetStatus);
+        _logger.LogInformation("通过悬浮窗右键取消等待恢复状态: {ButtonId}, 原状态: {OldStatus}, 新状态: {NewStatus}",
+            Settings.ButtonId, ActionSetStatus.IsOn, targetStatus);
+        _floatingWindowService.RegisterTrigger(this);
     }
 
     private void EnsureButtonId()

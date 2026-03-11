@@ -276,7 +276,7 @@ public partial class SystemToolsSettingsViewModel : ObservableObject
                 {
                     ButtonId = entry.ButtonId,
                     Icon = entry.Icon,
-                    ButtonName = entry.Name
+                    ButtonName = entry.LayoutName
                 });
             }
             FloatingTriggerRows.Add(vmRow);
