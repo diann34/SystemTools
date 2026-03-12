@@ -324,11 +324,6 @@ internal static class NetworkStatusDetectionService
             
             if (reply.Status == IPStatus.Success)
             {
-                if (reply.RoundtripTime is > 0 and < 5)
-                {
-                    return IcmpProbeResult.Fail("延迟过低");
-                }
-
                 if (reply.RoundtripTime <= 0)
                 {
                     return IcmpProbeResult.Fail("错误");
