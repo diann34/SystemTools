@@ -208,6 +208,9 @@ public class Plugin : PluginBase
             "SystemTools.AdvancedShutdown");
         RegisterActionIfEnabled<LockScreenAction>(services, config, "SystemTools.LockScreen");
         RegisterActionIfEnabled<CancelShutdownAction>(services, config, "SystemTools.CancelShutdown");
+        RegisterActionIfEnabled<ImmediateRestartAction>(services, config, "SystemTools.ImmediateRestart");
+        RegisterActionIfEnabled<ImmediateShutdownAction>(services, config, "SystemTools.ImmediateShutdown");
+        RegisterActionIfEnabled<SleepAction>(services, config, "SystemTools.Sleep");
 
         // 文件操作
         RegisterActionIfEnabled<CopyAction, CopySettingsControl>(services, config, "SystemTools.Copy");
@@ -380,7 +383,7 @@ public class Plugin : PluginBase
         }
 
         // 电源选项
-        if (HasAnyActionEnabled(config, "SystemTools.Shutdown", "SystemTools.AdvancedShutdown", "SystemTools.LockScreen", "SystemTools.CancelShutdown"))
+        if (HasAnyActionEnabled(config, "SystemTools.Shutdown", "SystemTools.AdvancedShutdown", "SystemTools.LockScreen", "SystemTools.CancelShutdown", "SystemTools.ImmediateRestart", "SystemTools.ImmediateShutdown", "SystemTools.Sleep"))
         {
             IActionService.ActionMenuTree["SystemTools 行动"].Add(new ActionMenuTreeGroup("电源选项…", "\uEDE8"));
             BuildPowerMenu(config);
@@ -511,6 +514,12 @@ public class Plugin : PluginBase
             items.Add(new ActionMenuTreeItem("SystemTools.CancelShutdown", "取消关机计划", "\uE4CC"));
         if (config.IsActionEnabled("SystemTools.LockScreen"))
             items.Add(new ActionMenuTreeItem("SystemTools.LockScreen", "锁定屏幕", "\uEAF0"));
+        if (config.IsActionEnabled("SystemTools.ImmediateRestart"))
+            items.Add(new ActionMenuTreeItem("SystemTools.ImmediateRestart", "立即重启", "\uE0BD"));
+        if (config.IsActionEnabled("SystemTools.ImmediateShutdown"))
+            items.Add(new ActionMenuTreeItem("SystemTools.ImmediateShutdown", "立即关机", "\uEDE9"));
+        if (config.IsActionEnabled("SystemTools.Sleep"))
+            items.Add(new ActionMenuTreeItem("SystemTools.Sleep", "睡眠", "\uF44B"));
 
         if (items.Count > 0)
         {
