@@ -69,7 +69,7 @@ public class FloatingWindowTriggerSettings : TriggerSettingsControlBase<Floating
 
         panel.Children.Add(new TextBlock
         {
-            Text = "您可在 SystemTools 悬浮窗编辑页面中 进一步设置悬浮窗样式。\n若勾选“启用恢复”则可通过再次点按按钮实现恢复。",
+            Text = "您可在 SystemTools 悬浮窗编辑页面中 进一步设置悬浮窗样式。\n若勾选“启用恢复”则可通过再次点按按钮实现恢复。\n在按钮状态为“恢复”时，右键按钮可退出恢复状态且不触发恢复。",
             TextWrapping = TextWrapping.Wrap,
             Foreground = Brushes.Gray
         });
