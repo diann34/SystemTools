@@ -3,6 +3,7 @@ using Avalonia.Animation;
 using Avalonia.Animation.Easings;
 using Avalonia.Controls;
 using Avalonia.Media;
+using Avalonia.Styling;
 using Avalonia.Threading;
 using ClassIsland.Core.Abstractions.Controls;
 using ClassIsland.Core.Attributes;
@@ -66,26 +67,26 @@ public partial class LocalQuoteComponent : ComponentBase<LocalQuoteSettings>, IN
             FillMode = FillMode.Forward,
             Easing = new QuadraticEaseIn(),
             Children =
-            [
+            {
                 new KeyFrame
                 {
                     Cue = new Cue(0),
                     Setters =
-                    [
+                    {
                         new Setter(TranslateTransform.YProperty, 0d),
                         new Setter(Visual.OpacityProperty, 1d)
-                    ]
+                    }
                 },
                 new KeyFrame
                 {
                     Cue = new Cue(1),
                     Setters =
-                    [
+                    {
                         new Setter(TranslateTransform.YProperty, SwapMotionOffset),
                         new Setter(Visual.OpacityProperty, 0d)
-                    ]
+                    }
                 }
-            ]
+            }
         };
 
         _swapInAnimation = new Animation
@@ -94,26 +95,26 @@ public partial class LocalQuoteComponent : ComponentBase<LocalQuoteSettings>, IN
             FillMode = FillMode.Forward,
             Easing = new QuadraticEaseOut(),
             Children =
-            [
+            {
                 new KeyFrame
                 {
                     Cue = new Cue(0),
                     Setters =
-                    [
+                    {
                         new Setter(TranslateTransform.YProperty, -SwapMotionOffset),
                         new Setter(Visual.OpacityProperty, 0d)
-                    ]
+                    }
                 },
                 new KeyFrame
                 {
                     Cue = new Cue(1),
                     Setters =
-                    [
+                    {
                         new Setter(TranslateTransform.YProperty, 0d),
                         new Setter(Visual.OpacityProperty, 1d)
-                    ]
+                    }
                 }
-            ]
+            }
         };
     }
 
