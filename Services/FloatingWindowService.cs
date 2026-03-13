@@ -6,6 +6,7 @@ using Avalonia.Layout;
 using Avalonia.Media;
 using Avalonia.Styling;
 using Avalonia.Threading;
+using Avalonia.VisualTree;
 using ClassIsland.Core.Controls;
 using System;
 using System.Collections.Generic;
@@ -42,6 +43,11 @@ public class FloatingWindowService
     private readonly Dictionary<string, double> _buttonWidthCache = new();
     private bool _allowWindowClose;
     private bool _restoringFromMinimized;
+    private bool _isTouchInputMode;
+    private bool _touchDragAllowed;
+    private PixelPoint _touchDragStartScreenPoint;
+    private PixelPoint _touchDragStartWindowPosition;
+    private Border? _touchDragHandle;
     private IntPtr _foregroundHook;
     private IntPtr _reorderHook;
     private WinEventProc? _winEventProc;
@@ -303,6 +309,16 @@ public class FloatingWindowService
 
         _stackPanel.Children.Clear();
 
+        if (_isTouchInputMode)
+        {
+            _touchDragHandle = CreateTouchDragHandle(scale, contentForeground);
+            _stackPanel.Children.Add(_touchDragHandle);
+        }
+        else
+        {
+            _touchDragHandle = null;
+        }
+
         foreach (var rowEntries in GetOrderedRows())
         {
             var rowPanel = new StackPanel
@@ -483,7 +499,29 @@ public class FloatingWindowService
 
     private void OnPointerPressed(object? sender, PointerPressedEventArgs e)
     {
-        if (_window == null || !e.GetCurrentPoint(_window).Properties.IsLeftButtonPressed)
+        if (_window == null)
+        {
+            return;
+        }
+
+        UpdateInputMode(e.Pointer.Type);
+
+        if (_isTouchInputMode)
+        {
+            if (!IsEventFromTouchDragHandle(e.Source))
+            {
+                _touchDragAllowed = false;
+                return;
+            }
+
+            _touchDragAllowed = true;
+            _touchDragStartScreenPoint = _window.PointToScreen(e.GetPosition(_window));
+            _touchDragStartWindowPosition = _window.Position;
+            e.Handled = true;
+            return;
+        }
+
+        if (!e.GetCurrentPoint(_window).Properties.IsLeftButtonPressed)
         {
             return;
         }
@@ -496,7 +534,31 @@ public class FloatingWindowService
 
     private void OnPointerMoved(object? sender, PointerEventArgs e)
     {
-        if (_window == null || !_pointerPressed || _dragInitiated)
+        if (_window == null)
+        {
+            return;
+        }
+
+        UpdateInputMode(e.Pointer.Type);
+
+        if (_isTouchInputMode)
+        {
+            if (!_touchDragAllowed)
+            {
+                return;
+            }
+
+            var screenPoint = _window.PointToScreen(e.GetPosition(_window));
+            var deltaX = screenPoint.X - _touchDragStartScreenPoint.X;
+            var deltaY = screenPoint.Y - _touchDragStartScreenPoint.Y;
+            var target = new PixelPoint(_touchDragStartWindowPosition.X + deltaX,
+                _touchDragStartWindowPosition.Y + deltaY);
+            _window.Position = ClampToVisibleScreen(target);
+            e.Handled = true;
+            return;
+        }
+
+        if (!_pointerPressed || _dragInitiated)
         {
             return;
         }
@@ -519,18 +581,91 @@ public class FloatingWindowService
 
     private void OnPointerReleased(object? sender, PointerReleasedEventArgs e)
     {
-        _pointerPressed = false;
-        _dragInitiated = false;
-        _lastPressedArgs = null;
-
         if (_window == null)
         {
             return;
         }
 
+        UpdateInputMode(e.Pointer.Type);
+
+        if (_isTouchInputMode)
+        {
+            var wasTouchDragging = _touchDragAllowed;
+            _touchDragAllowed = false;
+            if (!wasTouchDragging)
+            {
+                return;
+            }
+
+            var touchClamped = ClampToVisibleScreen(_window.Position);
+            _window.Position = touchClamped;
+            SavePosition(touchClamped);
+            e.Handled = true;
+            return;
+        }
+
+        _pointerPressed = false;
+        _dragInitiated = false;
+        _lastPressedArgs = null;
+
         var clamped = ClampToVisibleScreen(_window.Position);
         _window.Position = clamped;
         SavePosition(clamped);
+    }
+
+    private Border CreateTouchDragHandle(double scale, IBrush foreground)
+    {
+        return new Border
+        {
+            Background = Brushes.Transparent,
+            HorizontalAlignment = HorizontalAlignment.Center,
+            Padding = new Thickness(12 * scale, 3 * scale),
+            Child = new TextBlock
+            {
+                Text = ": : :",
+                FontSize = 12 * scale,
+                Foreground = foreground,
+                HorizontalAlignment = HorizontalAlignment.Center,
+                TextAlignment = TextAlignment.Center
+            }
+        };
+    }
+
+    private bool IsEventFromTouchDragHandle(object? source)
+    {
+        if (_touchDragHandle == null || source is not IVisual visual)
+        {
+            return false;
+        }
+
+        var current = visual;
+        while (current != null)
+        {
+            if (ReferenceEquals(current, _touchDragHandle))
+            {
+                return true;
+            }
+
+            current = current.GetVisualParent();
+        }
+
+        return false;
+    }
+
+    private void UpdateInputMode(PointerType pointerType)
+    {
+        var isTouchMode = pointerType == PointerType.Touch;
+        if (isTouchMode == _isTouchInputMode)
+        {
+            return;
+        }
+
+        _isTouchInputMode = isTouchMode;
+        _pointerPressed = false;
+        _dragInitiated = false;
+        _lastPressedArgs = null;
+        _touchDragAllowed = false;
+        Dispatcher.UIThread.Post(RefreshWindowButtons);
     }
 
     private PixelRect GetWindowRect(PixelPoint position)

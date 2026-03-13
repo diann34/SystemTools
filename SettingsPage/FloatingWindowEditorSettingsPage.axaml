@@ -127,8 +127,28 @@
                         <ComboBox SelectedIndex="{Binding ViewModel.Settings.FloatingWindowLayerRecheckMode, Mode=TwoWay}">
                             <ComboBoxItem>窗口层级变化时</ComboBoxItem>
                             <ComboBoxItem>前台窗口变化时</ComboBoxItem>
-                            <ComboBoxItem>每 50ms</ComboBoxItem>
-                            <ComboBoxItem>每 1ms</ComboBoxItem>
+                            <ComboBoxItem>
+                                <StackPanel Orientation="Horizontal"
+                                            Classes="items-valign-center"
+                                            Spacing="4">
+                                    <TextBlock Text="每 50ms"/>
+                                    <ci:FluentIcon Glyph="&#xF431;"
+                                                   FontSize="20"
+                                                   Margin="0 -8"
+                                                   Foreground="Orange"/>
+                                </StackPanel>
+                            </ComboBoxItem>
+                            <ComboBoxItem>
+                                <StackPanel Orientation="Horizontal"
+                                            Classes="items-valign-center"
+                                            Spacing="4">
+                                    <TextBlock Text="每 1ms"/>
+                                    <ci:FluentIcon Glyph="&#xF431;"
+                                                   FontSize="20"
+                                                   Margin="0 -8"
+                                                   Foreground="OrangeRed"/>
+                                </StackPanel>
+                            </ComboBoxItem>
                         </ComboBox>
                     </controls:SettingsExpanderItem.Footer>
                 </controls:SettingsExpanderItem>
