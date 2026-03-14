@@ -28,7 +28,12 @@ public class FloatingWindowService
     private const uint WinEventSkipOwnProcess = 2;
     private static readonly HWND HwndBottom = new(1);
     private static readonly HWND HwndTopmost = new(-1);
-    private const int SmMaximumTouches = 95;
+    private const int WhMouseLl = 14;
+    private const int WmMouseMove = 0x0200;
+    private const int WmLButtonDown = 0x0201;
+    private const int WmRButtonDown = 0x0204;
+    private const ulong MiWpSignatureMask = 0xFFFFFF00UL;
+    private const ulong MiWpSignature = 0xFF515700UL;
 
     private readonly MainConfigHandler _configHandler;
     private readonly Dictionary<FloatingWindowTrigger, FloatingWindowEntry> _entries = new();
@@ -52,11 +57,15 @@ public class FloatingWindowService
     private IntPtr _foregroundHook;
     private IntPtr _reorderHook;
     private WinEventProc? _winEventProc;
+    private IntPtr _mouseHook;
+    private LowLevelMouseProc? _lowLevelMouseProc;
     private DispatcherTimer LayerRecheck50MsTimer { get; } = new() { Interval = TimeSpan.FromMilliseconds(50) };
     private DispatcherTimer LayerRecheck1MsTimer { get; } = new() { Interval = TimeSpan.FromMilliseconds(1) };
 
     private delegate void WinEventProc(IntPtr hWinEventHook, uint @event, IntPtr hwnd, int idObject, int idChild, uint idEventThread,
         uint dwmsEventTime);
+
+    private delegate IntPtr LowLevelMouseProc(int nCode, IntPtr wParam, IntPtr lParam);
 
     [DllImport("user32.dll", SetLastError = true)]
     private static extern IntPtr SetWinEventHook(uint eventMin, uint eventMax, IntPtr hmodWinEventProc,
@@ -65,8 +74,14 @@ public class FloatingWindowService
     [DllImport("user32.dll", SetLastError = true)]
     private static extern bool UnhookWinEvent(IntPtr hWinEventHook);
 
+    [DllImport("user32.dll", SetLastError = true)]
+    private static extern IntPtr SetWindowsHookEx(int idHook, LowLevelMouseProc lpfn, IntPtr hMod, uint dwThreadId);
+
+    [DllImport("user32.dll", SetLastError = true)]
+    private static extern bool UnhookWindowsHookEx(IntPtr hhk);
+
     [DllImport("user32.dll")]
-    private static extern int GetSystemMetrics(int nIndex);
+    private static extern IntPtr CallNextHookEx(IntPtr hhk, int nCode, IntPtr wParam, IntPtr lParam);
 
     public event EventHandler? EntriesChanged;
 
@@ -83,6 +98,7 @@ public class FloatingWindowService
         {
             EnsureWindow();
             EnsureLayerRecheckHooks();
+            EnsureGlobalInputHooks();
             SubscribeThemeChanged();
             ApplyVisibility();
             RefreshLayerRecheckMode();
@@ -105,6 +121,7 @@ public class FloatingWindowService
             LayerRecheck50MsTimer.Stop();
             LayerRecheck1MsTimer.Stop();
             RemoveLayerRecheckHooks();
+            RemoveGlobalInputHooks();
             UnsubscribeThemeChanged();
         });
     }
@@ -210,7 +227,6 @@ public class FloatingWindowService
         }
 
         _allowWindowClose = false;
-        _isTouchDeviceDetected = IsTouchCapableDevice();
         _stackPanel = new StackPanel { Margin = new Thickness(6), Spacing = 6 };
         _window = new Window
         {
@@ -702,31 +718,93 @@ public class FloatingWindowService
         return false;
     }
 
-    private static bool IsTouchCapableDevice()
+    private void UpdateInputMode(PointerType pointerType)
     {
-        try
+        if (pointerType == PointerType.Touch)
         {
-            return GetSystemMetrics(SmMaximumTouches) > 0;
+            SetTouchInputMode(true);
+            return;
         }
-        catch
+
+        if (pointerType == PointerType.Mouse || pointerType == PointerType.Pen)
         {
-            return false;
+            SetTouchInputMode(false);
         }
     }
 
-    private void UpdateInputMode(PointerType pointerType)
+    private void SetTouchInputMode(bool isTouch)
     {
-        if (pointerType != PointerType.Touch || _isTouchDeviceDetected)
+        if (_isTouchDeviceDetected == isTouch)
         {
             return;
         }
 
-        _isTouchDeviceDetected = true;
+        _isTouchDeviceDetected = isTouch;
         _pointerPressed = false;
         _dragInitiated = false;
         _lastPressedArgs = null;
         _touchDragAllowed = false;
         Dispatcher.UIThread.Post(RefreshWindowButtons);
+    }
+
+    private void EnsureGlobalInputHooks()
+    {
+        if (_mouseHook != IntPtr.Zero)
+        {
+            return;
+        }
+
+        _lowLevelMouseProc ??= OnLowLevelMouse;
+        _mouseHook = SetWindowsHookEx(WhMouseLl, _lowLevelMouseProc, IntPtr.Zero, 0);
+    }
+
+    private void RemoveGlobalInputHooks()
+    {
+        if (_mouseHook == IntPtr.Zero)
+        {
+            return;
+        }
+
+        UnhookWindowsHookEx(_mouseHook);
+        _mouseHook = IntPtr.Zero;
+    }
+
+    private IntPtr OnLowLevelMouse(int nCode, IntPtr wParam, IntPtr lParam)
+    {
+        if (nCode < 0 || lParam == IntPtr.Zero)
+        {
+            return CallNextHookEx(_mouseHook, nCode, wParam, lParam);
+        }
+
+        var message = unchecked((uint)wParam.ToInt64());
+        if (message != WmMouseMove && message != WmLButtonDown && message != WmRButtonDown)
+        {
+            return CallNextHookEx(_mouseHook, nCode, wParam, lParam);
+        }
+
+        var info = Marshal.PtrToStructure<MSLLHOOKSTRUCT>(lParam);
+        var extra = unchecked((ulong)info.dwExtraInfo.ToInt64());
+        var isTouchGenerated = (extra & MiWpSignatureMask) == MiWpSignature;
+
+        SetTouchInputMode(isTouchGenerated);
+        return CallNextHookEx(_mouseHook, nCode, wParam, lParam);
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    private struct POINT
+    {
+        public int X;
+        public int Y;
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    private struct MSLLHOOKSTRUCT
+    {
+        public POINT pt;
+        public uint mouseData;
+        public uint flags;
+        public uint time;
+        public IntPtr dwExtraInfo;
     }
 
     private PixelRect GetWindowRect(PixelPoint position)
