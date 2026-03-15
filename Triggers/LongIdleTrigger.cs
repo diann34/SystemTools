@@ -13,12 +13,12 @@ namespace SystemTools.Triggers;
 public partial class LongIdleTrigger(ILogger<LongIdleTrigger> logger) : TriggerBase<LongIdleTriggerConfig>
 {
     private readonly ILogger<LongIdleTrigger> _logger = logger;
-    private Timer? _timer;
+    private System.Timers.Timer? _timer;
     private int _hasTriggered;
 
     public override void Loaded()
     {
-        _timer = new Timer(1000);
+        _timer = new System.Timers.Timer(1000);
         _timer.Elapsed += OnTimerElapsed;
         _timer.Start();
     }
