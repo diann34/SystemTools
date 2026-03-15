@@ -796,7 +796,16 @@ public class FloatingWindowService
         var extra = unchecked((ulong)info.dwExtraInfo.ToInt64());
         var isTouchGenerated = (extra & MiWpSignatureMask) == MiWpSignature;
 
-        SetTouchInputMode(isTouchGenerated);
+        if (isTouchGenerated)
+        {
+            SetTouchInputMode(true);
+        }
+        else if (message == WmLButtonDown || message == WmRButtonDown)
+        {
+            // 仅在明确的鼠标点击操作时切回鼠标模式，避免触屏后被背景鼠标移动事件自动恢复。
+            SetTouchInputMode(false);
+        }
+
         return CallNextHookEx(_mouseHook, nCode, wParam, lParam);
     }
 

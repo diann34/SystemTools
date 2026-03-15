@@ -4,6 +4,7 @@ using ClassIsland.Shared.Enums;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Runtime.InteropServices;
+using System.Threading;
 using System.Timers;
 
 namespace SystemTools.Triggers;
@@ -13,7 +14,7 @@ public partial class LongIdleTrigger(ILogger<LongIdleTrigger> logger) : TriggerB
 {
     private readonly ILogger<LongIdleTrigger> _logger = logger;
     private Timer? _timer;
-    private bool _hasTriggered;
+    private int _hasTriggered;
 
     public override void Loaded()
     {
@@ -44,23 +45,20 @@ public partial class LongIdleTrigger(ILogger<LongIdleTrigger> logger) : TriggerB
 
             if (idle >= threshold)
             {
-                if (_hasTriggered)
+                if (Interlocked.CompareExchange(ref _hasTriggered, 1, 0) != 0)
                 {
                     return;
                 }
 
                 _logger.LogInformation("超过未操作阈值，触发自动化。Idle={Idle}, Threshold={Threshold}", idle, threshold);
                 Trigger();
-                _hasTriggered = true;
                 return;
             }
 
-            if (!_hasTriggered)
+            if (Interlocked.CompareExchange(ref _hasTriggered, 0, 1) == 0)
             {
                 return;
             }
-
-            _hasTriggered = false;
 
             if (AssociatedWorkflow?.ActionSet?.IsRevertEnabled == true &&
                 AssociatedWorkflow.ActionSet.Status == ActionSetStatus.IsOn)
