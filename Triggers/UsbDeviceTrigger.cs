@@ -1,10 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.IO;
+using System.Management;
 using System.Runtime.InteropServices;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using ClassIsland.Core.Abstractions.Automation;
 using ClassIsland.Core.Attributes;
-using SystemTools.Utils;
 
 namespace SystemTools.Triggers;
 
@@ -12,6 +14,9 @@ namespace SystemTools.Triggers;
 public class UsbDeviceTrigger : TriggerBase<UsbDeviceTriggerConfig>
 {
     private readonly DeviceNotificationWindow _notificationWindow;
+    private ManagementEventWatcher? _volumeInsertWatcher;
+    private readonly object _triggerSyncRoot = new();
+    private readonly Dictionary<string, DateTime> _recentDriveTriggerTime = new(StringComparer.OrdinalIgnoreCase);
 
     public UsbDeviceTrigger()
     {
@@ -21,38 +26,167 @@ public class UsbDeviceTrigger : TriggerBase<UsbDeviceTriggerConfig>
 
     public override void Loaded()
     {
-        DriveUtils.InitializeDriveRecord(); // 插件加载时初始化盘符记录
-        _notificationWindow.Register();
+        Settings.PropertyChanged += OnSettingsPropertyChanged;
+        UpdateDetectionMode();
     }
 
     public override void UnLoaded()
     {
+        Settings.PropertyChanged -= OnSettingsPropertyChanged;
+        StopVolumeWatcher();
         _notificationWindow.Unregister();
     }
 
-    private async void OnDeviceArrived(object? sender, EventArgs e)
+    private void OnSettingsPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
-        if (DateTime.Now - Settings.LastTriggered < TimeSpan.FromSeconds(1))
-            return;
+        if (e.PropertyName == nameof(UsbDeviceTriggerConfig.OnlyUsbStorage))
+        {
+            UpdateDetectionMode();
+        }
+    }
+
+    private void UpdateDetectionMode()
+    {
+        StopVolumeWatcher();
+        _notificationWindow.Unregister();
 
         if (Settings.OnlyUsbStorage)
         {
-            await Task.Delay(1500);
-
-            var previousDrives = DriveUtils.LoadSavedDrives();
-            var newDrives = DriveUtils.GetNewDrives(previousDrives);
-
-            if (newDrives.Count > 0)
+            try
             {
-                Settings.LastTriggered = DateTime.Now;
-                DriveUtils.SaveDrives(DriveUtils.GetCurrentDrives());
-                Trigger();
+                StartVolumeWatcher();
+            }
+            catch
+            {
+                // WMI 在少数系统环境中可能不可用，回退到设备广播监听。
+                _notificationWindow.Register();
             }
         }
         else
         {
-            Settings.LastTriggered = DateTime.Now;
-            Trigger();
+            _notificationWindow.Register();
+        }
+    }
+
+    private void StartVolumeWatcher()
+    {
+        // EventType = 2 => 配置变更事件里的“设备到达（卷插入）”。
+        const string query = "SELECT * FROM Win32_VolumeChangeEvent WHERE EventType = 2";
+        _volumeInsertWatcher = new ManagementEventWatcher(new WqlEventQuery(query));
+        _volumeInsertWatcher.EventArrived += OnVolumeInserted;
+        _volumeInsertWatcher.Start();
+    }
+
+    private void StopVolumeWatcher()
+    {
+        if (_volumeInsertWatcher == null)
+        {
+            return;
+        }
+
+        _volumeInsertWatcher.EventArrived -= OnVolumeInserted;
+        try
+        {
+            _volumeInsertWatcher.Stop();
+        }
+        catch
+        {
+            // 忽略停止过程中的异常，保证触发器卸载流程稳定。
+        }
+
+        _volumeInsertWatcher.Dispose();
+        _volumeInsertWatcher = null;
+    }
+
+    private void OnVolumeInserted(object sender, EventArrivedEventArgs e)
+    {
+        var driveName = e.NewEvent.Properties["DriveName"]?.Value?.ToString();
+        if (string.IsNullOrWhiteSpace(driveName))
+        {
+            return;
+        }
+
+        if (!TryNormalizeDriveRoot(driveName, out var driveRoot))
+        {
+            return;
+        }
+
+        try
+        {
+            var driveInfo = new DriveInfo(driveRoot);
+            if (!driveInfo.IsReady || driveInfo.DriveType != DriveType.Removable)
+            {
+                return;
+            }
+        }
+        catch
+        {
+            return;
+        }
+
+        if (!TryMarkTriggered($"volume:{driveRoot}"))
+        {
+            return;
+        }
+
+        Trigger();
+    }
+
+    private void OnDeviceArrived(object? sender, EventArgs e)
+    {
+        if (!TryMarkTriggered("device-arrived"))
+        {
+            return;
+        }
+
+        Trigger();
+    }
+
+    private bool TryMarkTriggered(string key)
+    {
+        var now = DateTime.Now;
+
+        lock (_triggerSyncRoot)
+        {
+            if (now - Settings.LastTriggered < TimeSpan.FromSeconds(1))
+            {
+                return false;
+            }
+
+            if (_recentDriveTriggerTime.TryGetValue(key, out var last) &&
+                now - last < TimeSpan.FromSeconds(3))
+            {
+                return false;
+            }
+
+            Settings.LastTriggered = now;
+            _recentDriveTriggerTime[key] = now;
+            return true;
+        }
+    }
+
+    private static bool TryNormalizeDriveRoot(string driveName, out string driveRoot)
+    {
+        driveRoot = string.Empty;
+
+        try
+        {
+            driveRoot = Path.GetPathRoot(driveName) ?? string.Empty;
+            if (string.IsNullOrWhiteSpace(driveRoot))
+            {
+                return false;
+            }
+
+            if (!driveRoot.EndsWith(Path.DirectorySeparatorChar))
+            {
+                driveRoot += Path.DirectorySeparatorChar;
+            }
+
+            return true;
+        }
+        catch
+        {
+            return false;
         }
     }
 
@@ -70,6 +204,11 @@ public class UsbDeviceTrigger : TriggerBase<UsbDeviceTriggerConfig>
 
         public void Register()
         {
+            if (Handle != IntPtr.Zero)
+            {
+                return;
+            }
+
             CreateHandle(new CreateParams());
 
             var dbi = new DEV_BROADCAST_DEVICEINTERFACE
@@ -97,7 +236,10 @@ public class UsbDeviceTrigger : TriggerBase<UsbDeviceTriggerConfig>
                 _notificationHandle = IntPtr.Zero;
             }
 
-            DestroyHandle();
+            if (Handle != IntPtr.Zero)
+            {
+                DestroyHandle();
+            }
         }
 
         protected override void WndProc(ref Message m)
