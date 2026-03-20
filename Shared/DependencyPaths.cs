@@ -119,7 +119,7 @@ public static class DependencyPaths
         var current = Environment.GetEnvironmentVariable("PATH") ?? string.Empty;
         var pathEntries = current.Split(Path.PathSeparator, StringSplitOptions.RemoveEmptyEntries).ToList();
 
-        foreach (var directory in directories.Reverse())
+        foreach (var directory in Enumerable.Reverse(directories))
         {
             pathEntries.RemoveAll(x => string.Equals(x, directory, StringComparison.OrdinalIgnoreCase));
             pathEntries.Insert(0, directory);
