@@ -20,7 +20,7 @@ using SystemTools.Models.ComponentSettings;
 namespace SystemTools.Controls.Components;
 
 [ContainerComponent]
-[ComponentInfo("A7C3455E-6A4E-4D4D-9D0D-7C6FCB5E1E3A", "更好的轮播容器", "", "按组件分别设置显示时长，并可显示切换进度条的轮播容器。")]
+[ComponentInfo("A7C3455E-6A4E-4D4D-9D0D-7C6FCB5E1E3A", "更好的轮播容器", "", "提供更多高级功能、可单独设置组件显示时长的轮播容器")]
 public partial class BetterCarouselContainerComponent : ComponentBase<BetterCarouselContainerSettings>, INotifyPropertyChanged
 {
     private readonly DispatcherTimer _timer = new() { Interval = TimeSpan.FromMilliseconds(100) };
