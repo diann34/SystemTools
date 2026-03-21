@@ -52,7 +52,7 @@
   > 位于 *[ SystemTools 行动 > 电源选项… > 睡眠 ]*
 
 - **[行动]**: 新增 **清除全部提醒** 行动
-  > 和ClassIsland托盘菜单中”清除全部提醒“功能相同。
+  > 和ClassIsland托盘菜单中”清除全部提醒“功能相同
   >
   > 位于 *[ SystemTools 行动 > ClassIsland… > 清除全部提醒 ]*
 
