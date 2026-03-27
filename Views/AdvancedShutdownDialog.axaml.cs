@@ -12,6 +12,7 @@ public partial class AdvancedShutdownDialog : Window
 
     public TextBlock? CountdownTextBlock => this.FindControl<TextBlock>("CountdownTextBlockElement");
     public ProgressBar? CountdownProgressBar => this.FindControl<ProgressBar>("CountdownProgressBarElement");
+    public Button? ImmediateShutdownButton => this.FindControl<Button>("ImmediateShutdownButtonElement");
     public Button? ReadButton => this.FindControl<Button>("ReadButtonElement");
     public Button? CancelPlanButton => this.FindControl<Button>("CancelPlanButtonElement");
     public Button? ExtendButton => this.FindControl<Button>("ExtendButtonElement");

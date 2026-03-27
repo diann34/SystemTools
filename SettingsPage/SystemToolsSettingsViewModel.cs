@@ -148,7 +148,9 @@ public partial class SystemToolsSettingsViewModel : ObservableObject, IDisposabl
 
         var rules = new List<(string Id, string Name)>
         {
-            ("SystemTools.ProcessRunningRule", "程序正在运行")
+            ("SystemTools.ProcessRunningRule", "程序正在运行"),
+            ("SystemTools.UsingClassPlanRule", "正在使用某课程表"),
+            ("SystemTools.UsingTimeLayoutRule", "正在使用某时间表")
         };
         foreach (var (id, name) in rules)
         {
@@ -200,6 +202,7 @@ public partial class SystemToolsSettingsViewModel : ObservableObject, IDisposabl
             ("SystemTools.TriggerCustomTrigger", "触发指定触发器", null),
             ("SystemTools.RestartAsAdmin", "重启应用为管理员身份", "ClassIsland"),
             ("SystemTools.ClearAllNotifications", "清除全部提醒", "ClassIsland"),
+            ("SystemTools.LoadTemporaryClassPlan", "加载临时课表", "ClassIsland"),
         };
 
         if (Settings.EnableFloatingWindowFeature)

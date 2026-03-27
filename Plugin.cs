@@ -254,6 +254,8 @@ public class Plugin : PluginBase
         RegisterActionIfEnabled<DisableDeviceAction, DisableDeviceSettingsControl>(services, config,
             "SystemTools.DisableDevice");
         RegisterActionIfEnabled<ShowToastAction, ShowToastSettingsControl>(services, config, "SystemTools.ShowToast");
+        RegisterActionIfEnabled<LoadTemporaryClassPlanAction, LoadTemporaryClassPlanSettingsControl>(services, config,
+            "SystemTools.LoadTemporaryClassPlan");
 
         // 悬浮窗设置
         if (config.EnableFloatingWindowFeature)
@@ -296,13 +298,24 @@ public class Plugin : PluginBase
     private void RegisterBaseRules(IServiceCollection services)
     {
         var config = GlobalConstants.MainConfig!.Data;
-        if (!config.IsRuleEnabled("SystemTools.ProcessRunningRule"))
+
+        if (config.IsRuleEnabled("SystemTools.ProcessRunningRule"))
         {
-            return;
+            services.AddRule<ProcessRunningRuleSettings, ProcessRunningRuleSettingsControl>(
+                "SystemTools.ProcessRunningRule", "程序正在运行", "\uE342", HandleProcessRunningRule);
         }
 
-        services.AddRule<ProcessRunningRuleSettings, ProcessRunningRuleSettingsControl>(
-            "SystemTools.ProcessRunningRule", "程序正在运行", "\uE342", HandleProcessRunningRule);
+        if (config.IsRuleEnabled("SystemTools.UsingClassPlanRule"))
+        {
+            services.AddRule<UsingClassPlanRuleSettings, UsingClassPlanRuleSettingsControl>(
+                "SystemTools.UsingClassPlanRule", "正在使用某课程表", "\uE82D", HandleUsingClassPlanRule);
+        }
+
+        if (config.IsRuleEnabled("SystemTools.UsingTimeLayoutRule"))
+        {
+            services.AddRule<UsingTimeLayoutRuleSettings, UsingTimeLayoutRuleSettingsControl>(
+                "SystemTools.UsingTimeLayoutRule", "正在使用某时间表", "\uE823", HandleUsingTimeLayoutRule);
+        }
     }
 
     private void RegisterBaseComponents(IServiceCollection services)
@@ -453,7 +466,7 @@ public class Plugin : PluginBase
             BuildUtilityMenu(config);
         }
 
-        if (HasAnyActionEnabled(config, "SystemTools.ClearAllNotifications", "SystemTools.RestartAsAdmin"))
+        if (HasAnyActionEnabled(config, "SystemTools.ClearAllNotifications", "SystemTools.RestartAsAdmin", "SystemTools.LoadTemporaryClassPlan"))
         {
             IActionService.ActionMenuTree["SystemTools 行动"].Add(new ActionMenuTreeGroup("ClassIsland…", "\uE5CB"));
             BuildClassIslandMenu(config);
@@ -511,6 +524,40 @@ public class Plugin : PluginBase
         {
             return false;
         }
+    }
+
+    private static bool HandleUsingClassPlanRule(object? settings)
+    {
+        if (settings is not UsingClassPlanRuleSettings ruleSettings ||
+            !Guid.TryParse(ruleSettings.ClassPlanId, out var classPlanId))
+        {
+            return false;
+        }
+
+        var profile = IAppHost.TryGetService<IProfileService>()?.Profile;
+        if (profile == null || !profile.ClassPlans.TryGetValue(classPlanId, out var classPlan))
+        {
+            return false;
+        }
+
+        return classPlan.IsActivated;
+    }
+
+    private static bool HandleUsingTimeLayoutRule(object? settings)
+    {
+        if (settings is not UsingTimeLayoutRuleSettings ruleSettings ||
+            !Guid.TryParse(ruleSettings.TimeLayoutId, out var timeLayoutId))
+        {
+            return false;
+        }
+
+        var profile = IAppHost.TryGetService<IProfileService>()?.Profile;
+        if (profile == null || !profile.TimeLayouts.TryGetValue(timeLayoutId, out var timeLayout))
+        {
+            return false;
+        }
+
+        return timeLayout.IsActivated;
     }
 
     private void BuildSimulationMenu(MainConfigData config)
@@ -683,6 +730,8 @@ public class Plugin : PluginBase
             items.Add(new ActionMenuTreeItem("SystemTools.ClearAllNotifications", "清除全部提醒", "\uE029"));
         if (config.IsActionEnabled("SystemTools.RestartAsAdmin"))
             items.Add(new ActionMenuTreeItem("SystemTools.RestartAsAdmin", "重启应用为管理员身份", "\uEF53"));
+        if (config.IsActionEnabled("SystemTools.LoadTemporaryClassPlan"))
+            items.Add(new ActionMenuTreeItem("SystemTools.LoadTemporaryClassPlan", "加载临时课表", "\uE6A1"));
 
         if (items.Count > 0)
         {

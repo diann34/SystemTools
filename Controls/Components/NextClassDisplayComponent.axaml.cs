@@ -165,6 +165,11 @@ public partial class NextClassDisplayComponent : ComponentBase<NextClassDisplayS
                 continue;
             }
 
+            if (!candidateClassInfo.IsEnabled)
+            {
+                continue;
+            }
+
             if (!_profileService.Profile.Subjects.TryGetValue(candidateClassInfo.SubjectId, out var subject))
             {
                 continue;

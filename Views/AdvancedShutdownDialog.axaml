@@ -38,9 +38,10 @@
                        Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
 
             <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8">
-                <Button x:Name="ReadButtonElement" Content="已阅" MinWidth="84" />
+                <Button x:Name="ImmediateShutdownButtonElement" Content="立即关机" MinWidth="92" />
+                <Button x:Name="ReadButtonElement" Content="已阅" MinWidth="84" Classes="accent" IsDefault="True" />
                 <Button x:Name="CancelPlanButtonElement" Content="取消计划" MinWidth="92" />
-                <Button x:Name="ExtendButtonElement" Content="延长时间" MinWidth="92" Classes="accent" />
+                <Button x:Name="ExtendButtonElement" Content="延长时间" MinWidth="92" />
             </StackPanel>
         </Grid>
     </Border>

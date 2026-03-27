@@ -305,6 +305,7 @@ public class AdvancedShutdownAction(ILogger<AdvancedShutdownAction> logger) : Ac
 
         var textBlock = dialog.CountdownTextBlock ?? throw new InvalidOperationException("CountdownTextBlockElement 未找到");
         var progressBar = dialog.CountdownProgressBar ?? throw new InvalidOperationException("CountdownProgressBarElement 未找到");
+        var immediateShutdownButton = dialog.ImmediateShutdownButton ?? throw new InvalidOperationException("ImmediateShutdownButtonElement 未找到");
         var readButton = dialog.ReadButton ?? throw new InvalidOperationException("ReadButtonElement 未找到");
         var cancelPlanButton = dialog.CancelPlanButton ?? throw new InvalidOperationException("CancelPlanButtonElement 未找到");
         var extendButton = dialog.ExtendButton ?? throw new InvalidOperationException("ExtendButtonElement 未找到");
@@ -344,6 +345,26 @@ public class AdvancedShutdownAction(ILogger<AdvancedShutdownAction> logger) : Ac
         {
             CloseMainDialogProgrammatically();
             ShowOrUpdateFloatingWindow();
+        };
+
+        immediateShutdownButton.Click += (_, _) =>
+        {
+            StopAllStates();
+            try
+            {
+                Process.Start(new ProcessStartInfo
+                {
+                    FileName = "shutdown",
+                    Arguments = "/s /t 0",
+                    UseShellExecute = false,
+                    CreateNoWindow = true,
+                    WindowStyle = ProcessWindowStyle.Hidden
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "执行立即关机失败。");
+            }
         };
 
         cancelPlanButton.Click += (_, _) => CancelShutdownPlan();
@@ -412,8 +433,8 @@ public class AdvancedShutdownAction(ILogger<AdvancedShutdownAction> logger) : Ac
             {
                 CornerRadius = new CornerRadius(10),
                 Padding = new Thickness(10, 6),
-                Background = Avalonia.Media.Brushes.Black,
-                Opacity = 0.92,
+                Background = new SolidColorBrush(Color.FromArgb(210, 20, 20, 20)),
+                Opacity = 0.88,
                 Child = tipButton
             }
         };
@@ -451,8 +472,13 @@ public class AdvancedShutdownAction(ILogger<AdvancedShutdownAction> logger) : Ac
         }
 
         var area = screen.WorkingArea;
-        var x = area.X + area.Width - (int)window.Width - 12;
-        var y = area.Y + 12;
+        var scaling = Math.Max(0.5, window.RenderScaling);
+        var widthDip = window.Bounds.Width > 0 ? window.Bounds.Width : window.Width;
+        var marginPx = (int)Math.Round(12 * scaling);
+        var widthPx = (int)Math.Round(widthDip * scaling);
+
+        var x = area.X + area.Width - widthPx - marginPx;
+        var y = area.Y + marginPx;
         var target = new PixelPoint(Math.Max(area.X, x), Math.Max(area.Y, y));
 
         if (window.Position != target)
@@ -489,8 +515,23 @@ public class AdvancedShutdownAction(ILogger<AdvancedShutdownAction> logger) : Ac
 
     private static async Task<int?> ShowExtendInputDialogAsync(Window owner)
     {
-        var dialog = new ExtendShutdownDialog();
-        await dialog.ShowDialog(owner);
-        return dialog.ResultMinutes;
+        var dialog = new ExtendShutdownDialog
+        {
+            Topmost = true,
+            ShowInTaskbar = false
+        };
+
+        var previousTopmost = owner.Topmost;
+        owner.Topmost = false;
+        try
+        {
+            await dialog.ShowDialog(owner);
+            return dialog.ResultMinutes;
+        }
+        finally
+        {
+            owner.Topmost = previousTopmost;
+            owner.Activate();
+        }
     }
 }
