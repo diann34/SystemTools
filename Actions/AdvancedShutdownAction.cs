@@ -35,6 +35,12 @@ public class AdvancedShutdownAction(ILogger<AdvancedShutdownAction> logger) : Ac
     private static bool _allowMainDialogClose;
     private static bool _allowFloatingWindowClose;
 
+    public static void CancelPlanOnAppStopping()
+    {
+        StopCountdownProcess();
+        TryAbortSystemShutdown();
+    }
+
     protected override async Task OnInvoke()
     {
         _logger.LogDebug("AdvancedShutdownAction OnInvoke 开始");
@@ -180,6 +186,26 @@ public class AdvancedShutdownAction(ILogger<AdvancedShutdownAction> logger) : Ac
         }
     }
 
+    private static void TryAbortSystemShutdown()
+    {
+        try
+        {
+            var psi = new ProcessStartInfo
+            {
+                FileName = "shutdown",
+                Arguments = "/a",
+                UseShellExecute = false,
+                CreateNoWindow = true,
+                WindowStyle = ProcessWindowStyle.Hidden
+            };
+            using var process = Process.Start(psi);
+            process?.WaitForExit(1000);
+        }
+        catch
+        {
+        }
+    }
+
     private static int GetRemainingSeconds()
     {
         lock (StateLock)
@@ -255,6 +281,7 @@ public class AdvancedShutdownAction(ILogger<AdvancedShutdownAction> logger) : Ac
     private void StopAllStates()
     {
         StopCountdownProcess();
+        TryAbortSystemShutdown();
 
         lock (StateLock)
         {

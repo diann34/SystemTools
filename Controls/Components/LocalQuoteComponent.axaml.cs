@@ -164,7 +164,7 @@ public partial class LocalQuoteComponent : ComponentBase<LocalQuoteSettings>, IN
 
     private void RefreshTimerInterval()
     {
-        var interval = Math.Max(1, Settings.CarouselIntervalSeconds);
+        var interval = Math.Clamp(Settings.CarouselIntervalSeconds, 1, 8000);
         _carouselTimer.Interval = TimeSpan.FromSeconds(interval);
     }
 

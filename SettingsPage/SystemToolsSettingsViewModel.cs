@@ -150,7 +150,8 @@ public partial class SystemToolsSettingsViewModel : ObservableObject, IDisposabl
         {
             ("SystemTools.ProcessRunningRule", "程序正在运行"),
             ("SystemTools.UsingClassPlanRule", "正在使用某课程表"),
-            ("SystemTools.UsingTimeLayoutRule", "正在使用某时间表")
+            ("SystemTools.UsingTimeLayoutRule", "正在使用某时间表"),
+            ("SystemTools.InTimePeriodRule", "是否在某时间段")
         };
         foreach (var (id, name) in rules)
         {

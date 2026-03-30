@@ -86,6 +86,20 @@ public class MainConfigData : INotifyPropertyChanged
             RestartPropertyChanged?.Invoke(this, EventArgs.Empty);
         }
     }
+
+    bool _autoMatchMainBackgroundTheme;
+
+    [JsonPropertyName("autoMatchMainBackgroundTheme")]
+    public bool AutoMatchMainBackgroundTheme
+    {
+        get => _autoMatchMainBackgroundTheme;
+        set
+        {
+            if (value == _autoMatchMainBackgroundTheme) return;
+            _autoMatchMainBackgroundTheme = value;
+            OnPropertyChanged();
+        }
+    }
     
     // ========== 公告相关 ==========
     /*string _lastAcceptedAnnouncement = string.Empty;

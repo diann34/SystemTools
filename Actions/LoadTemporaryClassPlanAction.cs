@@ -3,6 +3,7 @@ using ClassIsland.Core.Abstractions.Services;
 using ClassIsland.Core.Attributes;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Collections.Concurrent;
 using System.Threading.Tasks;
 using SystemTools.Settings;
 
@@ -18,6 +19,8 @@ public class LoadTemporaryClassPlanAction(
     private readonly IProfileService _profileService = profileService;
     private readonly IExactTimeService _exactTimeService = exactTimeService;
 
+    private static readonly ConcurrentDictionary<Guid, TempClassPlanSnapshot> PreviousSnapshots = new();
+
     protected override async Task OnInvoke()
     {
         if (!Guid.TryParse(Settings.ClassPlanId, out var classPlanId))
@@ -32,6 +35,13 @@ public class LoadTemporaryClassPlanAction(
             return;
         }
 
+        if (IsRevertable)
+        {
+            PreviousSnapshots[ActionSet.Guid] = new TempClassPlanSnapshot(
+                _profileService.Profile.TempClassPlanId,
+                _profileService.Profile.TempClassPlanSetupTime);
+        }
+
         _profileService.Profile.TempClassPlanId = classPlanId;
         _profileService.Profile.TempClassPlanSetupTime = _exactTimeService.GetCurrentLocalDateTime();
         _profileService.SaveProfile();
@@ -39,4 +49,24 @@ public class LoadTemporaryClassPlanAction(
 
         await base.OnInvoke();
     }
+
+    protected override async Task OnRevert()
+    {
+        await base.OnRevert();
+
+        if (PreviousSnapshots.TryRemove(ActionSet.Guid, out var snapshot))
+        {
+            _profileService.Profile.TempClassPlanId = snapshot.TempClassPlanId;
+            _profileService.Profile.TempClassPlanSetupTime = snapshot.TempClassPlanSetupTime;
+            _profileService.SaveProfile();
+            _logger.LogInformation("已恢复临时课表为触发前状态。ActionSet={ActionSetGuid}", ActionSet.Guid);
+            return;
+        }
+
+        _profileService.Profile.TempClassPlanId = null;
+        _profileService.SaveProfile();
+        _logger.LogInformation("未找到触发前状态，已清除临时课表。ActionSet={ActionSetGuid}", ActionSet.Guid);
+    }
+
+    private readonly record struct TempClassPlanSnapshot(Guid? TempClassPlanId, DateTime TempClassPlanSetupTime);
 }

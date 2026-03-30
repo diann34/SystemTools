@@ -46,7 +46,7 @@
                     IconSource="{ci:FluentIconSource &#xEF75;}">
                     <controls:SettingsExpander.Footer>
                         <NumericUpDown Minimum="1"
-                                       Maximum="600"
+                                       Maximum="8000"
                                        Increment="1"
                                        Value="{Binding Settings.CarouselIntervalSeconds, Mode=TwoWay}" />
                     </controls:SettingsExpander.Footer>

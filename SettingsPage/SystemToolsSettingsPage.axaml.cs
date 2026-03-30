@@ -17,6 +17,7 @@ using SystemTools.Shared;
 using SystemTools.Services;
 using ClassIsland.Core.Abstractions;
 using ClassIsland.Shared;
+using ClassIsland.Core.Abstractions.Services;
 
 namespace SystemTools;
 
@@ -209,6 +210,12 @@ public partial class SystemToolsSettingsPage : SettingsPageBase
     {
         ViewModel.FeatureDrawerContent = new object();
         ViewModel.IsFeatureDrawerOpen = true;
+    }
+
+    private void OnOpenMoreFeaturesClick(object? sender, RoutedEventArgs e)
+    {
+        IAppHost.GetService<IUriNavigationService>()
+            .NavigateWrapped(new Uri("classisland://app/settings/systemtools.settings.more?ci_keepHistory=true"));
     }
 
     private void OnCloseDrawerClick(object? sender, RoutedEventArgs e)

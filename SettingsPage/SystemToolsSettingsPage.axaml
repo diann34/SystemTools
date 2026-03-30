@@ -181,6 +181,16 @@
                     </controls:SettingsExpander.Footer>
                 </controls:SettingsExpander>
 
+                <controls:SettingsExpander IconSource="{ci:FluentIconSource &#xE712;}"
+                                           Header="更多功能选项"
+                                           Description="进入隐藏的更多功能设置页面">
+                    <controls:SettingsExpander.Footer>
+                        <Button Content="更多功能选项..."
+                                Width="165"
+                                Click="OnOpenMoreFeaturesClick" />
+                    </controls:SettingsExpander.Footer>
+                </controls:SettingsExpander>
+
                 <!-- 启用更多功能 -->
                 <controls:SettingsExpander IconSource="{ci:FluentIconSource &#xE071;}"
                                            Header="启用扩展功能"
