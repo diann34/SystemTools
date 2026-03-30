@@ -389,6 +389,12 @@ public partial class BetterCarouselContainerComponent : ComponentBase<BetterCaro
             RefreshComponentWidthsAndContainerWidth();
             UpdateProgressState(resetWhenIdle: true);
         }
+
+        if (e.PropertyName == nameof(ComponentSettings.LastWidthCache))
+        {
+            TryCaptureComponentWidths(force: true);
+            RefreshComponentWidthsAndContainerWidth();
+        }
     }
 
     private void OnRulesetStatusUpdated(object? sender, EventArgs e)
@@ -448,12 +454,7 @@ public partial class BetterCarouselContainerComponent : ComponentBase<BetterCaro
         Settings.NormalizeMeasuredWidths();
         for (var i = 0; i < Settings.Children.Count; i++)
         {
-            if (CarouselListBox.ContainerFromIndex(i) is not ListBoxItem item)
-            {
-                continue;
-            }
-
-            var width = item.Bounds.Width;
+            var width = Settings.Children[i].LastWidthCache;
             if (width > 0.1 && (force || Settings.GetMeasuredWidth(i) <= 0.1))
             {
                 Settings.SetMeasuredWidth(i, width);
