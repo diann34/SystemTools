@@ -1,4 +1,4 @@
-<Window x:Class="SystemTools.Views.AdvancedShutdownDialog"
+<ci:MyWindow x:Class="SystemTools.Views.AdvancedShutdownDialog"
         xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:ci="http://classisland.tech/schemas/xaml/core"
@@ -6,22 +6,17 @@
         Height="215" 
         WindowStartupLocation="CenterScreen"
         Topmost="True"
-        SystemDecorations="None"
         CanResize="False"
-        Title="SystemTools - 高级计时关机">
+        Title="高级计时关机"
+        ShowAsDialog="True">
     
-    <Border Margin="7" Padding="10" CornerRadius="7"
+    <Border Padding="16" CornerRadius="8"
             Background="{DynamicResource LayerFillColorAltBrush}">
         <Grid RowDefinitions="Auto,Auto,Auto,Auto"  RowSpacing="8">
             
             <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="10">
-                <StackPanel>
-                    <TextBlock Text=" " FontSize="0.1" />
-                </StackPanel>
-                <ci:FluentIcon Glyph="&#xE4C4;" FontSize="21" FontWeight="SemiBold" VerticalAlignment="Center" />
-                <StackPanel>
-                    <TextBlock Text="即将关机…" FontSize="19.5" FontWeight="SemiBold" VerticalAlignment="Center" />
-                </StackPanel>
+                <ci:FluentIcon Glyph="&#xE4C4;" FontSize="21" FontWeight="SemiBold" VerticalAlignment="Center" Foreground="{DynamicResource AccentFillColorDefaultBrush}" />
+                <TextBlock Text="即将关机…" FontSize="19.5" FontWeight="SemiBold" VerticalAlignment="Center" />
             </StackPanel>
 
             <Border Grid.Row="1" Padding="16" CornerRadius="8"
@@ -30,44 +25,48 @@
                     <TextBlock x:Name="CountdownTextBlockElement"
                                FontSize="18"
                                FontWeight="SemiBold"
+                               Foreground="{DynamicResource AccentFillColorDefaultBrush}"
                                Text="将在2分00秒后关机……" />
-                    <ProgressBar x:Name="CountdownProgressBarElement" Height="5" Minimum="0" Maximum="3000" Value="3000" />
+                    <ProgressBar x:Name="CountdownProgressBarElement" Height="5" Minimum="0" Maximum="3000" Value="3000">
+                        <ProgressBar.Styles>
+                            <Style Selector="ProgressBar">
+                                <Setter Property="Foreground" Value="{DynamicResource AccentFillColorDefaultBrush}"/>
+                            </Style>
+                        </ProgressBar.Styles>
+                    </ProgressBar>
                 </StackPanel>
             </Border>
 
             <StackPanel Grid.Row="2" Spacing="12">
-                <TextBlock Text="   即将关闭计算机。请及时保存您的工作或选择其他操作。"
+                <TextBlock Text="即将关闭计算机。请及时保存您的工作或选择其他操作。"
                            TextWrapping="Wrap"
                            FontSize="14"
                            Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
-                <Separator Height="1" Opacity="0.2" Background="{DynamicResource TextFillColorSecondaryBrush}"/>
             </StackPanel>
 
-            <Grid Grid.Row="3" ColumnDefinitions="Auto,*">
+            <Grid Grid.Row="3" ColumnDefinitions="*,Auto,Auto,Auto">
                 <Button x:Name="ReadButtonElement" 
                         Grid.Column="0"
                         Height="33"
                         MinWidth="81" 
                         Classes="accent" 
                         IsDefault="True">
-                    <ci:IconText Glyph="&#xE423;" Text="已阅" Spacing="8" FontSize="15"/>
+                    <ci:IconText Glyph="&#xE423;" Text="已阅" Spacing="8" FontSize="15" Foreground="{DynamicResource TextOnAccentFillColorSelectedTextBrush}"/>
                 </Button>
     
-                <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8">
-                    <Button x:Name="ImmediateShutdownButtonElement" Height="33" MinWidth="110">
-                        <ci:IconText Glyph="&#xEDE8;" Text="立即关机" Spacing="8" FontSize="15"/>
-                    </Button>
+                <Button x:Name="ImmediateShutdownButtonElement" Height="33" MinWidth="110" Grid.Column="1" Margin="0 0 8 0">
+                    <ci:IconText Glyph="&#xEDE8;" Text="立即关机" Spacing="8" FontSize="15"/>
+                </Button>
         
-                    <Button x:Name="ExtendButtonElement" Height="33" MinWidth="110">
-                        <ci:IconText Glyph="&#xE31C;" Text="延迟关机" Spacing="8" FontSize="15"/>
-                    </Button>
-                    
-                    <Button x:Name="CancelPlanButtonElement" Height="33" MinWidth="130">
-                        <ci:IconText Glyph="&#xE4CC;" Text="取消关机计划" Spacing="8" FontSize="15"/>
-                    </Button>
-                </StackPanel>
+                <Button x:Name="ExtendButtonElement" Height="33" MinWidth="110" Grid.Column="2" Margin="0 0 8 0">
+                    <ci:IconText Glyph="&#xE31C;" Text="延迟关机" Spacing="8" FontSize="15"/>
+                </Button>
+                
+                <Button x:Name="CancelPlanButtonElement" Height="33" MinWidth="130" Grid.Column="3">
+                    <ci:IconText Glyph="&#xE4CC;" Text="取消关机计划" Spacing="8" FontSize="15"/>
+                </Button>
             </Grid>
 
         </Grid>
     </Border>
-</Window>
+</ci:MyWindow>

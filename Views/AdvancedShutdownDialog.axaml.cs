@@ -3,10 +3,11 @@ using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
 using System;
 using Avalonia.Threading;
+using ClassIsland.Core.Controls;
 
 namespace SystemTools.Views;
 
-public partial class AdvancedShutdownDialog : Window
+public partial class AdvancedShutdownDialog : MyWindow
 {
     public AdvancedShutdownDialog()
     {

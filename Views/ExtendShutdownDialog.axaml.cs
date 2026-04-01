@@ -4,10 +4,11 @@ using Avalonia.Markup.Xaml;
 using Avalonia;
 using System;
 using Avalonia.Threading;
+using ClassIsland.Core.Controls;
 
 namespace SystemTools.Views;
 
-public partial class ExtendShutdownDialog : Window
+public partial class ExtendShutdownDialog : MyWindow
 {
     public int? ResultMinutes { get; private set; }
 
