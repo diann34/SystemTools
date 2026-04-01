@@ -296,8 +296,6 @@ public class Plugin : PluginBase
         }
     }
 
-
-
     private void RegisterBaseRules(IServiceCollection services)
     {
         var config = GlobalConstants.MainConfig!.Data;
@@ -311,19 +309,19 @@ public class Plugin : PluginBase
         if (config.IsRuleEnabled("SystemTools.UsingClassPlanRule"))
         {
             services.AddRule<UsingClassPlanRuleSettings, UsingClassPlanRuleSettingsControl>(
-                "SystemTools.UsingClassPlanRule", "正在使用某课程表", "\uE82D", HandleUsingClassPlanRule);
+                "SystemTools.UsingClassPlanRule", "正在使用某课程表", "\uE6B1", HandleUsingClassPlanRule);
         }
 
         if (config.IsRuleEnabled("SystemTools.UsingTimeLayoutRule"))
         {
             services.AddRule<UsingTimeLayoutRuleSettings, UsingTimeLayoutRuleSettingsControl>(
-                "SystemTools.UsingTimeLayoutRule", "正在使用某时间表", "\uE823", HandleUsingTimeLayoutRule);
+                "SystemTools.UsingTimeLayoutRule", "正在使用某时间表", "\uE69D", HandleUsingTimeLayoutRule);
         }
 
         if (config.IsRuleEnabled("SystemTools.InTimePeriodRule"))
         {
             services.AddRule<InTimePeriodRuleSettings, InTimePeriodRuleSettingsControl>(
-                "SystemTools.InTimePeriodRule", "是否在某时间段", "\uE823", HandleInTimePeriodRule);
+                "SystemTools.InTimePeriodRule", "是否在某时间段", "\uE4CA", HandleInTimePeriodRule);
         }
     }
 
