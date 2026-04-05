@@ -5,10 +5,10 @@ using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Runtime.InteropServices;
+using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using System.Runtime.InteropServices.WindowsRuntime;
 using SystemTools.Shared;
 using Windows.Graphics.Imaging;
 using Windows.Media.Ocr;
@@ -21,7 +21,9 @@ public class MainWindowOcclusionAutoHideService(ILogger<MainWindowOcclusionAutoH
     private readonly ILogger<MainWindowOcclusionAutoHideService> _logger = logger;
     private readonly DispatcherTimer _timer = new() { Interval = TimeSpan.FromSeconds(2) };
     private readonly SemaphoreSlim _ocrLock = new(1, 1);
+    private readonly int _currentProcessId = Process.GetCurrentProcess().Id;
     private bool? _isHidden;
+    private IntPtr _cachedMainWindowHandle = IntPtr.Zero;
 
     public void Start()
     {
@@ -64,7 +66,7 @@ public class MainWindowOcclusionAutoHideService(ILogger<MainWindowOcclusionAutoH
 
         try
         {
-            var handle = Process.GetCurrentProcess().MainWindowHandle;
+            var handle = ResolveMainWindowHandle();
             if (handle == IntPtr.Zero || !GetWindowRect(handle, out var rect))
             {
                 return;
@@ -84,15 +86,7 @@ public class MainWindowOcclusionAutoHideService(ILogger<MainWindowOcclusionAutoH
                 return;
             }
 
-            if (shouldHide)
-            {
-                ShowWindow(handle, SW_HIDE);
-            }
-            else
-            {
-                ShowWindow(handle, SW_SHOWNA);
-            }
-
+            ShowWindow(handle, shouldHide ? SW_HIDE : SW_SHOWNA);
             _isHidden = shouldHide;
             _logger.LogDebug("主界面遮挡检测: 文本长度={TextLength}, 动作={Action}", textLength, shouldHide ? "隐藏" : "显示");
         }
@@ -104,6 +98,52 @@ public class MainWindowOcclusionAutoHideService(ILogger<MainWindowOcclusionAutoH
         {
             _ocrLock.Release();
         }
+    }
+
+    private IntPtr ResolveMainWindowHandle()
+    {
+        if (_cachedMainWindowHandle != IntPtr.Zero && IsWindow(_cachedMainWindowHandle))
+        {
+            return _cachedMainWindowHandle;
+        }
+
+        var processHandle = Process.GetCurrentProcess().MainWindowHandle;
+        if (processHandle != IntPtr.Zero && IsWindow(processHandle))
+        {
+            _cachedMainWindowHandle = processHandle;
+            return processHandle;
+        }
+
+        var discovered = FindWindowByProcessId(_currentProcessId);
+        if (discovered != IntPtr.Zero)
+        {
+            _cachedMainWindowHandle = discovered;
+        }
+
+        return discovered;
+    }
+
+    private static IntPtr FindWindowByProcessId(int processId)
+    {
+        IntPtr found = IntPtr.Zero;
+        EnumWindows((hWnd, _) =>
+        {
+            if (!IsWindow(hWnd))
+            {
+                return true;
+            }
+
+            _ = GetWindowThreadProcessId(hWnd, out var windowProcessId);
+            if (windowProcessId == processId)
+            {
+                found = hWnd;
+                return false;
+            }
+
+            return true;
+        }, IntPtr.Zero);
+
+        return found;
     }
 
     private static Rectangle BuildCaptureRect(RECT rect)
@@ -161,6 +201,19 @@ public class MainWindowOcclusionAutoHideService(ILogger<MainWindowOcclusionAutoH
 
     [DllImport("user32.dll")]
     private static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
+
+    [DllImport("user32.dll")]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    private static extern bool EnumWindows(EnumWindowsProc lpEnumFunc, IntPtr lParam);
+
+    [DllImport("user32.dll")]
+    private static extern uint GetWindowThreadProcessId(IntPtr hWnd, out int lpdwProcessId);
+
+    [DllImport("user32.dll")]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    private static extern bool IsWindow(IntPtr hWnd);
+
+    private delegate bool EnumWindowsProc(IntPtr hWnd, IntPtr lParam);
 
     private struct RECT
     {
