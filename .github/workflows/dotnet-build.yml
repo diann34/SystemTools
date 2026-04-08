@@ -25,7 +25,7 @@ jobs:
         run: dotnet publish -p:CreateCipx=true --configuration Release --no-restore
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: systemtools-cipx-artifacts
           path: |
