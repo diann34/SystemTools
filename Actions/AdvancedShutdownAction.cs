@@ -455,6 +455,8 @@ public class AdvancedShutdownAction(ILogger<AdvancedShutdownAction> logger) : Ac
             Topmost = true,
             ShowInTaskbar = false,
             SystemDecorations = SystemDecorations.None,
+            Background = Brushes.Transparent, 
+            TransparencyLevelHint = [WindowTransparencyLevel.Transparent],
             Content = new Border
             {
                 CornerRadius = new CornerRadius(10),

@@ -28,4 +28,5 @@ public partial class MoreFeaturesOptionsSettingsPage : SettingsPageBase
 
         GlobalConstants.MainConfig?.Save();
     }
+
 }
