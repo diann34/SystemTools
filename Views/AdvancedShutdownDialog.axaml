@@ -2,7 +2,7 @@
              xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:ci="http://classisland.tech/schemas/xaml/core"
-             Width="590"
+             Width="588"
              Height="200" 
              WindowStartupLocation="CenterScreen"
              Topmost="True"
@@ -24,8 +24,7 @@
                 <StackPanel Spacing="10">
                     <TextBlock x:Name="CountdownTextBlockElement"
                                FontSize="18"
-                               FontWeight="SemiBold"
-                               Foreground="{DynamicResource AccentFillColorDefaultBrush}"
+                               FontWeight="DemiBold"
                                Text="将在2分00秒后关机……" />
                     <ProgressBar x:Name="CountdownProgressBarElement" Height="5" Minimum="0" Maximum="3000" Value="3000">
                         <ProgressBar.Styles>
