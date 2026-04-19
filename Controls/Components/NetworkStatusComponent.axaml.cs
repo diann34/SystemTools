@@ -164,7 +164,7 @@ public partial class NetworkStatusComponent : ComponentBase<NetworkStatusSetting
         }
         catch (HttpRequestException)
         {
-            SetErrorStatus("无网络");
+            SetErrorStatus("超时");
         }
         catch
         {
@@ -200,11 +200,11 @@ public partial class NetworkStatusComponent : ComponentBase<NetworkStatusSetting
 
             return reply.Status == IPStatus.TimedOut
                 ? IcmpProbeResult.Fail("超时")
-                : IcmpProbeResult.Fail("无网络");
+                : IcmpProbeResult.Fail("超时");
         }
         catch (PingException)
         {
-            return IcmpProbeResult.Fail("无网络");
+            return IcmpProbeResult.Fail("超时");
         }
         catch
         {
