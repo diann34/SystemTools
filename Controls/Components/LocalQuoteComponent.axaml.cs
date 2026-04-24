@@ -30,6 +30,7 @@ public partial class LocalQuoteComponent : ComponentBase<LocalQuoteSettings>, IN
     private const double SwapMotionOffset = 20;
 
     private readonly DispatcherTimer _carouselTimer;
+    private readonly DispatcherTimer _progressTimer;
     private readonly List<string> _quotes = [];
     private readonly Animation _swapOutAnimation;
     private readonly Animation _swapInAnimation;
@@ -37,6 +38,8 @@ public partial class LocalQuoteComponent : ComponentBase<LocalQuoteSettings>, IN
     private string _loadedPath = string.Empty;
     private bool _isAnimating;
     private string _currentQuote = "（请先在组件设置中选择 txt 文件）";
+    private DateTime _displayStartedAt = DateTime.UtcNow;
+    private double _currentCycleDurationSeconds = 6;
 
     public string CurrentQuote
     {
@@ -49,6 +52,10 @@ public partial class LocalQuoteComponent : ComponentBase<LocalQuoteSettings>, IN
     }
 
     public new event PropertyChangedEventHandler? PropertyChanged;
+
+    public double CurrentProgressPercent { get; private set; }
+    public bool ShowTopProgressBar => Settings.ShowProgressBar && Settings.ProgressBarPosition == LocalQuoteProgressBarPosition.Top;
+    public bool ShowBottomProgressBar => Settings.ShowProgressBar && Settings.ProgressBarPosition == LocalQuoteProgressBarPosition.Bottom;
 
     protected virtual void OnPropertyChanged(string propertyName)
     {
@@ -67,6 +74,8 @@ public partial class LocalQuoteComponent : ComponentBase<LocalQuoteSettings>, IN
 
         _carouselTimer = new DispatcherTimer();
         _carouselTimer.Tick += OnCarouselTicked;
+        _progressTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(100) };
+        _progressTimer.Tick += (_, _) => UpdateProgressState();
 
         _swapOutAnimation = new Animation
         {
@@ -140,6 +149,7 @@ public partial class LocalQuoteComponent : ComponentBase<LocalQuoteSettings>, IN
     {
         Settings.PropertyChanged -= OnSettingsPropertyChanged;
         _carouselTimer.Stop();
+        _progressTimer.Stop();
     }
 
     private void OnSettingsPropertyChanged(object? sender, PropertyChangedEventArgs e)
@@ -147,6 +157,13 @@ public partial class LocalQuoteComponent : ComponentBase<LocalQuoteSettings>, IN
         if (e.PropertyName == nameof(Settings.CarouselIntervalSeconds))
         {
             RefreshTimerInterval();
+            return;
+        }
+
+        if (e.PropertyName is nameof(Settings.ShowProgressBar) or nameof(Settings.ProgressBarPosition))
+        {
+            OnPropertyChanged(nameof(ShowTopProgressBar));
+            OnPropertyChanged(nameof(ShowBottomProgressBar));
             return;
         }
 
@@ -203,7 +220,9 @@ public partial class LocalQuoteComponent : ComponentBase<LocalQuoteSettings>, IN
         }
 
         _carouselTimer.Interval = TimeSpan.FromSeconds(initialDelay);
+        RestartProgressCycle(initialDelay);
         _carouselTimer.Start();
+        _progressTimer.Start();
     }
 
     private void OnCarouselTicked(object? sender, EventArgs e)
@@ -232,6 +251,7 @@ public partial class LocalQuoteComponent : ComponentBase<LocalQuoteSettings>, IN
     {
         var interval = Math.Clamp(Settings.CarouselIntervalSeconds, 1, 8000);
         _carouselTimer.Interval = TimeSpan.FromSeconds(interval);
+        RestartProgressCycle(interval);
     }
 
     private void LoadQuotesFromFile(string path, bool showFirstQuote)
@@ -307,6 +327,7 @@ public partial class LocalQuoteComponent : ComponentBase<LocalQuoteSettings>, IN
         {
             ResetVisualState();
             CurrentQuote = next;
+            RestartProgressCycle(_carouselTimer.Interval.TotalSeconds);
             return;
         }
 
@@ -316,11 +337,13 @@ public partial class LocalQuoteComponent : ComponentBase<LocalQuoteSettings>, IN
             await _swapOutAnimation.RunAsync(QuoteTextBlock);
             CurrentQuote = next;
             await _swapInAnimation.RunAsync(QuoteTextBlock);
+            RestartProgressCycle(_carouselTimer.Interval.TotalSeconds);
         }
         catch
         {
             CurrentQuote = next;
             ResetVisualState();
+            RestartProgressCycle(_carouselTimer.Interval.TotalSeconds);
         }
         finally
         {
@@ -340,5 +363,36 @@ public partial class LocalQuoteComponent : ComponentBase<LocalQuoteSettings>, IN
         {
             QuoteTextBlock.RenderTransform = new TranslateTransform();
         }
+    }
+
+    private void RestartProgressCycle(double durationSeconds)
+    {
+        _currentCycleDurationSeconds = Math.Max(1, durationSeconds);
+        _displayStartedAt = DateTime.UtcNow;
+        UpdateProgressState();
+    }
+
+    private void UpdateProgressState()
+    {
+        if (_quotes.Count == 0 || !Settings.ShowProgressBar)
+        {
+            SetProgress(0);
+            return;
+        }
+
+        var elapsed = (DateTime.UtcNow - _displayStartedAt).TotalSeconds;
+        var ratio = Math.Clamp(elapsed / _currentCycleDurationSeconds, 0, 1);
+        SetProgress(ratio * 100);
+    }
+
+    private void SetProgress(double progress)
+    {
+        if (Math.Abs(CurrentProgressPercent - progress) < 0.1)
+        {
+            return;
+        }
+
+        CurrentProgressPercent = progress;
+        OnPropertyChanged(nameof(CurrentProgressPercent));
     }
 }

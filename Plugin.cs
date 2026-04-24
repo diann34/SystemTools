@@ -47,11 +47,11 @@ public class Plugin : PluginBase
     public override void Initialize(HostBuilderContext context, IServiceCollection services)
     {
         // ========== 初始化配置 ==========
-        Console.WriteLine("[SystemTools]-------------------------------------------------------------------\r\n" 
+        Console.WriteLine("[SystemTools]-------------------------------------------------------------------\r\n"
                           + GlobalConstants.Assets.AsciiLogo
-                          + "\r\n Copyright (C) 2026 Programmer_MrWang \r\n Licensed under GNU AGPLv3. \r\n" 
+                          + "\r\n Copyright (C) 2026 Programmer_MrWang \r\n Licensed under GNU AGPLv3. \r\n"
                           + "正在初始化SystemTools配置...-----------------------------------------------------------");
-        
+
         GlobalConstants.PluginConfigFolder = PluginConfigFolder;
         GlobalConstants.Information.PluginFolder = Info.PluginFolderPath;
         GlobalConstants.Information.PluginVersion = Info.Manifest.Version;
@@ -63,7 +63,7 @@ public class Plugin : PluginBase
         services.AddSingleton(GlobalConstants.MainConfig);
         services.AddSingleton<FloatingWindowService>();
         services.AddSingleton<AdaptiveThemeSyncService>();
-        
+
         // ========== 注册可选人脸识别 ==========
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
         {
@@ -80,7 +80,7 @@ public class Plugin : PluginBase
                 }
             }
         }
-        
+
         // ========== 注册设置页面 ==========
         services.AddSettingsPage<SystemToolsSettingsPage>();
         services.AddSettingsPage<MoreFeaturesOptionsSettingsPage>();
@@ -160,7 +160,7 @@ public class Plugin : PluginBase
         // ========== 注册设置页面分组 ==========
         AppBase.Current.AppStarted += (_, _) => RegisterSettingsPageGroup(services);
     }
-    
+
     #region 依赖检查
 
     private void EnsureOptionalDependencyState()
@@ -257,6 +257,8 @@ public class Plugin : PluginBase
         RegisterActionIfEnabled<DisableDeviceAction, DisableDeviceSettingsControl>(services, config,
             "SystemTools.DisableDevice");
         RegisterActionIfEnabled<ShowToastAction, ShowToastSettingsControl>(services, config, "SystemTools.ShowToast");
+        RegisterActionIfEnabled<BackgroundPlayAudioAction, BackgroundPlayAudioSettingsControl>(services, config,
+            "SystemTools.BackgroundPlayAudio");
         RegisterActionIfEnabled<LoadTemporaryClassPlanAction, LoadTemporaryClassPlanSettingsControl>(services, config,
             "SystemTools.LoadTemporaryClassPlan");
 
@@ -341,7 +343,7 @@ public class Plugin : PluginBase
             "SystemTools.NextClassDisplay");
         RegisterComponentIfEnabled<BetterCarouselContainerComponent, BetterCarouselContainerSettingsControl>(services, config,
             "SystemTools.BetterCarouselContainer");
-        RegisterComponentIfEnabled<ScrollingTextComponent, ScrollingTextSettingsControl>(services, config, 
+        RegisterComponentIfEnabled<ScrollingTextComponent, ScrollingTextSettingsControl>(services, config,
             "SystemTools.ScrollingText");
 
     }
@@ -367,11 +369,13 @@ public class Plugin : PluginBase
     {
         _logger?.LogInformation("[SystemTools]正在注册 FFmpeg 依赖功能...");
 
-        services.AddAction<CameraCaptureAction, CameraCaptureSettingsControl>();
-
-        IActionService.ActionMenuTree["SystemTools 行动"]["实用工具…"].Add(
-            new ActionMenuTreeItem("SystemTools.CameraCapture", "摄像头抓拍", "\uE39E")
-        );
+        if (GlobalConstants.MainConfig!.Data.IsActionEnabled("SystemTools.CameraCapture"))
+        {
+            services.AddAction<CameraCaptureAction, CameraCaptureSettingsControl>();
+            IActionService.ActionMenuTree["SystemTools 行动"]["媒体工具…"].Add(
+                new ActionMenuTreeItem("SystemTools.CameraCapture", "摄像头抓拍", "\uE39E")
+            );
+        }
     }
 
     #endregion
@@ -474,6 +478,12 @@ public class Plugin : PluginBase
         {
             IActionService.ActionMenuTree["SystemTools 行动"].Add(new ActionMenuTreeGroup("实用工具…", "\uE352"));
             BuildUtilityMenu(config);
+        }
+
+        if (config.EnableFfmpegFeatures || HasAnyActionEnabled(config, "SystemTools.BackgroundPlayAudio"))
+        {
+            IActionService.ActionMenuTree["SystemTools 行动"].Add(new ActionMenuTreeGroup("媒体工具…", "\uE189"));
+            BuildMediaToolsMenu(config);
         }
 
         if (HasAnyActionEnabled(config, "SystemTools.ClearAllNotifications", "SystemTools.RestartAsAdmin", "SystemTools.LoadTemporaryClassPlan"))
@@ -724,6 +734,18 @@ public class Plugin : PluginBase
         if (items.Count > 0)
         {
             IActionService.ActionMenuTree["SystemTools 行动"]["实用工具…"].AddRange(items);
+        }
+    }
+
+    private void BuildMediaToolsMenu(MainConfigData config)
+    {
+        var items = new List<ActionMenuTreeItem>();
+        if (config.IsActionEnabled("SystemTools.BackgroundPlayAudio"))
+            items.Add(new ActionMenuTreeItem("SystemTools.BackgroundPlayAudio", "后台播放音频", "\uE189"));
+
+        if (items.Count > 0)
+        {
+            IActionService.ActionMenuTree["SystemTools 行动"]["媒体工具…"].AddRange(items);
         }
     }
 
