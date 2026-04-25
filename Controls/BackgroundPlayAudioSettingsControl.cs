@@ -96,7 +96,7 @@ public class BackgroundPlayAudioSettingsControl : ActionSettingsControlBase<Back
             var result = await topLevel.StorageProvider.OpenFilePickerAsync(options);
             if (result != null && result.Count > 0)
             {
-                Settings.AudioFilePath = result[0].Path.LocalPath;
+                Settings.AudioFilePath = NormalizePathForWindows(result[0].Path.LocalPath);
                 _audioPathBox.Text = Settings.AudioFilePath;
             }
         }
@@ -105,5 +105,22 @@ public class BackgroundPlayAudioSettingsControl : ActionSettingsControlBase<Back
             var logger = IAppHost.TryGetService<ILogger<BackgroundPlayAudioSettingsControl>>();
             logger?.LogError(ex, "选择音频文件失败");
         }
+    }
+
+    private static string NormalizePathForWindows(string path)
+    {
+        if (string.IsNullOrWhiteSpace(path))
+        {
+            return path;
+        }
+
+        var normalized = Uri.UnescapeDataString(path);
+        if (OperatingSystem.IsWindows() && normalized.StartsWith("/") &&
+            normalized.Length > 2 && char.IsLetter(normalized[1]) && normalized[2] == ':')
+        {
+            normalized = normalized[1..];
+        }
+
+        return normalized;
     }
 }

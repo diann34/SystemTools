@@ -16,6 +16,16 @@
                 </controls:SettingsExpander.Footer>
             </controls:SettingsExpander>
 
+            <controls:SettingsExpander IconSource="{ci:FluentIconSource &#xE8B7;}"
+                                       Header="自动播放"
+                                       Description="开启后，当插入U盘时自动打开该U盘。">
+                <controls:SettingsExpander.Footer>
+                    <ToggleSwitch IsChecked="{Binding Config.AutoOpenUsbDriveOnInsert, Mode=TwoWay}"
+                                  Checked="AutoOpenUsbToggle_OnChanged"
+                                  Unchecked="AutoOpenUsbToggle_OnChanged" />
+                </controls:SettingsExpander.Footer>
+            </controls:SettingsExpander>
+
         </StackPanel>
     </ScrollViewer>
 </ci:SettingsPageBase>

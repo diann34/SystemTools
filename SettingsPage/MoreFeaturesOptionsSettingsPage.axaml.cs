@@ -29,4 +29,10 @@ public partial class MoreFeaturesOptionsSettingsPage : SettingsPageBase
         GlobalConstants.MainConfig?.Save();
     }
 
+    private void AutoOpenUsbToggle_OnChanged(object? sender, RoutedEventArgs e)
+    {
+        var service = ClassIsland.Shared.IAppHost.GetService<UsbAutoPlayService>();
+        service.ApplyConfig();
+        GlobalConstants.MainConfig?.Save();
+    }
 }
