@@ -34,5 +34,9 @@ SetWindowPos
 EnumWindows
 GetClassName
 GetWindowText
+ImmGetContext
+ImmSetOpenStatus
+ImmGetOpenStatus
+
 DEV_BROADCAST_DEVICEINTERFACE_W
 DEV_BROADCAST_HDR
