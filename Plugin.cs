@@ -33,9 +33,9 @@ namespace SystemTools;
             _________                 __                  ___________              .__
           /   _____/___.__.  _______/  |_   ____    _____\__    ___/____    ____  |  |    ______
           \_____  \<   |  | /  ___/\   __\_/ __ \  /     \ |    |  /  _ \  /  _ \ |  |   /  ___/
-          /        \\___  | \___ \  |  |  \  ___/ |  Y Y  \|    | (  <_> )(  <_> )|  |__ \___ \
-         /_______  // ____|/____  > |__|   \___  >|__|_|  /|____|  \____/  \____/ |____//____  >
-                \/ \/          \/             \/       \/                                   \/
+         /        \\___  | \___ \  |  |  \  ___/ |  Y Y  \|    | (  <_> )(  <_> )|  |__ \___ \
+        /_______  // ____|/____  > |__|   \___  >|__|_|  /|____|  \____/  \____/ |____//____  >
+               \/ \/          \/             \/       \/                                   \/
 */
 public class Plugin : PluginBase
 {
@@ -261,7 +261,9 @@ public class Plugin : PluginBase
         RegisterActionIfEnabled<ShowToastAction, ShowToastSettingsControl>(services, config, "SystemTools.ShowToast");
         RegisterActionIfEnabled<LoadTemporaryClassPlanAction, LoadTemporaryClassPlanSettingsControl>(services, config,
             "SystemTools.LoadTemporaryClassPlan");
-        
+        RegisterActionIfEnabled<ImeStateAction, ImeStateSettingsControl>(services, config, "SystemTools.ImeState");
+
+
         // 媒体工具
         RegisterActionIfEnabled<BackgroundPlayAudioAction, BackgroundPlayAudioSettingsControl>(services, config,
             "SystemTools.BackgroundPlayAudio");
@@ -734,6 +736,8 @@ public class Plugin : PluginBase
             items.Add(new ActionMenuTreeItem("SystemTools.DisableDevice", "禁用硬件设备", "\uE09F"));
         if (config.IsActionEnabled("SystemTools.EnableDevice"))
             items.Add(new ActionMenuTreeItem("SystemTools.EnableDevice", "启用硬件设备", "\uE0AD"));
+        if (config.IsActionEnabled("SystemTools.ImeState"))
+            items.Add(new ActionMenuTreeItem("SystemTools.ImeState", "更改输入法状态", "\uE775"));
 
         if (items.Count > 0)
         {
