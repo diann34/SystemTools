@@ -167,3 +167,6 @@
 - **[设置页面]**: 主设置新增 AI 服务、Windows Hello、VoskWorker 和语音模型管理；更多功能选项按 ClassIsland 外观、性能和其他工具重新分组
 
 - **[关于页面]**: 新增 Hoshimi Miyabi 版本名称和顶部标题图片
+
+- **[从悬浮窗触发]**: 悬浮窗触发器按钮图标改用 **ClassIsland 图标表达式**（fluent(...) / lucide(...) / img(...)）
+  > 优化触发器设置中的图标选择器；支持按图标名称或 Unicode 码搜索与本地图片浏览

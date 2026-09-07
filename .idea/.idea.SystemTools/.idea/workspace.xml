@@ -14,7 +14,18 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="58c1fb2c-63dc-4b0a-aa81-6cfa0bb0e251" name="更改" comment="">
+      <change afterPath="$PROJECT_DIR$/Controls/IconExpressionEditor.axaml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Controls/IconExpressionEditor.axaml.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Helpers/SimpleExpression/SimpleExpressionParser.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Models/UI/IconExpressionEditorViewModel.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Services/FloatingWindowIconProvider.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.SystemTools/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.SystemTools/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README-2.md" beforeDir="false" afterPath="$PROJECT_DIR$/README-2.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Services/FloatingWindowService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Services/FloatingWindowService.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Settings/FloatingWindowTriggerSettings.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Settings/FloatingWindowTriggerSettings.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/SettingsPage/FloatingWindowEditorSettingsPage.axaml" beforeDir="false" afterPath="$PROJECT_DIR$/SettingsPage/FloatingWindowEditorSettingsPage.axaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/SettingsPage/SystemToolsSettingsViewModel.cs" beforeDir="false" afterPath="$PROJECT_DIR$/SettingsPage/SystemToolsSettingsViewModel.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Triggers/FloatingWindowTriggerConfig.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Triggers/FloatingWindowTriggerConfig.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -41,9 +52,8 @@
 }</component>
   <component name="HighlightingSettingsPerFile">
     <setting file="file://$PROJECT_DIR$/VoskWorker/Program.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="mock://E:/My Github Projects/SystemTools/Plugin.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock://E:/My Github Projects/SystemTools/Services/ThemeBannerCacheService.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock://E:/My Github Projects/SystemTools/Themes/NotchStyle/NotchMaterialControl.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock://E:/My Github Projects/SystemTools/Settings/FloatingWindowTriggerSettings.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock://E:/My Github Projects/SystemTools/SettingsPage/FloatingWindowEditorSettingsPage.axaml" root0="SKIP_HIGHLIGHTING" />
   </component>
   <component name="MetaFilesCheckinStateConfiguration" checkMetaFiles="true" />
   <component name="ProblemsViewState">
@@ -185,6 +195,9 @@
       <workItem from="1788536535945" duration="502000" />
       <workItem from="1788538739676" duration="346000" />
       <workItem from="1788596894420" duration="1134000" />
+      <workItem from="1788624853415" duration="905000" />
+      <workItem from="1788628486264" duration="733000" />
+      <workItem from="1788793436384" duration="2520000" />
     </task>
     <task id="LOCAL-00034" summary="feat: 初步实现液态玻璃悬浮窗">
       <option name="closed" value="true" />
