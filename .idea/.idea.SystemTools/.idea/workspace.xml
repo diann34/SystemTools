@@ -14,18 +14,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="58c1fb2c-63dc-4b0a-aa81-6cfa0bb0e251" name="更改" comment="">
-      <change afterPath="$PROJECT_DIR$/Controls/IconExpressionEditor.axaml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Controls/IconExpressionEditor.axaml.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Helpers/SimpleExpression/SimpleExpressionParser.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Models/UI/IconExpressionEditorViewModel.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Services/FloatingWindowIconProvider.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.SystemTools/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.SystemTools/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/README-2.md" beforeDir="false" afterPath="$PROJECT_DIR$/README-2.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Services/FloatingWindowService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Services/FloatingWindowService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Settings/FloatingWindowTriggerSettings.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Settings/FloatingWindowTriggerSettings.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/SettingsPage/FloatingWindowEditorSettingsPage.axaml" beforeDir="false" afterPath="$PROJECT_DIR$/SettingsPage/FloatingWindowEditorSettingsPage.axaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/SettingsPage/SystemToolsSettingsViewModel.cs" beforeDir="false" afterPath="$PROJECT_DIR$/SettingsPage/SystemToolsSettingsViewModel.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Triggers/FloatingWindowTriggerConfig.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Triggers/FloatingWindowTriggerConfig.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/SettingsPage/MoreFeaturesOptionsSettingsPage.axaml" beforeDir="false" afterPath="$PROJECT_DIR$/SettingsPage/MoreFeaturesOptionsSettingsPage.axaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Themes/NotchStyle/Theme.axaml.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Themes/NotchStyle/Theme.axaml.txt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -197,23 +188,9 @@
       <workItem from="1788596894420" duration="1134000" />
       <workItem from="1788624853415" duration="905000" />
       <workItem from="1788628486264" duration="733000" />
-      <workItem from="1788793436384" duration="2520000" />
-    </task>
-    <task id="LOCAL-00034" summary="feat: 初步实现液态玻璃悬浮窗">
-      <option name="closed" value="true" />
-      <created>1786158874188</created>
-      <option name="number" value="00034" />
-      <option name="presentableId" value="LOCAL-00034" />
-      <option name="project" value="LOCAL" />
-      <updated>1786158874188</updated>
-    </task>
-    <task id="LOCAL-00035" summary="fix: 修复文字未居中的问题">
-      <option name="closed" value="true" />
-      <created>1786160909678</created>
-      <option name="number" value="00035" />
-      <option name="presentableId" value="LOCAL-00035" />
-      <option name="project" value="LOCAL" />
-      <updated>1786160909678</updated>
+      <workItem from="1788793436384" duration="2864000" />
+      <workItem from="1788841721844" duration="808000" />
+      <workItem from="1788937085315" duration="1545000" />
     </task>
     <task id="LOCAL-00036" summary="fix: 修复设置页icon、文字表述 和编辑限制">
       <option name="closed" value="true" />
@@ -591,7 +568,23 @@
       <option name="project" value="LOCAL" />
       <updated>1788597136965</updated>
     </task>
-    <option name="localTasksCounter" value="83" />
+    <task id="LOCAL-00083" summary="feat: 更新“从悬浮窗触发”触发器的 图标选择器">
+      <option name="closed" value="true" />
+      <created>1788797454023</created>
+      <option name="number" value="00083" />
+      <option name="presentableId" value="LOCAL-00083" />
+      <option name="project" value="LOCAL" />
+      <updated>1788797454024</updated>
+    </task>
+    <task id="LOCAL-00084" summary="doc: 更新日志">
+      <option name="closed" value="true" />
+      <created>1788797702312</created>
+      <option name="number" value="00084" />
+      <option name="presentableId" value="LOCAL-00084" />
+      <option name="project" value="LOCAL" />
+      <updated>1788797702312</updated>
+    </task>
+    <option name="localTasksCounter" value="85" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -612,8 +605,6 @@
   </component>
   <component name="VcsManagerConfiguration">
     <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="true" />
-    <MESSAGE value="feat: 实现AI预加载和缓存行动列表以提升相应性能" />
-    <MESSAGE value="feat: 添加http" />
     <MESSAGE value="feat: 新增ClssWidgets主题" />
     <MESSAGE value="feat: 优化主题外观" />
     <MESSAGE value="fix: 收尾修复错误的关机截止问题" />
@@ -637,7 +628,9 @@
     <MESSAGE value="proj: 修复构建之三" />
     <MESSAGE value="proj: 构建修复之四" />
     <MESSAGE value="proj: 剔除无用注释" />
-    <option name="LAST_COMMIT_MESSAGE" value="proj: 剔除无用注释" />
+    <MESSAGE value="feat: 更新“从悬浮窗触发”触发器的 图标选择器" />
+    <MESSAGE value="doc: 更新日志" />
+    <option name="LAST_COMMIT_MESSAGE" value="doc: 更新日志" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
